@@ -1,0 +1,232 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    /* === Backgrounds === */
+    --bg-base: #08090B;
+    --bg-elevated: #111317;
+    --bg-panel: rgba(255, 255, 255, 0.08);
+    --bg-panel-hover: rgba(255, 255, 255, 0.12);
+    --bg-panel-active: rgba(255, 255, 255, 0.16);
+    --bg-input: rgba(255, 255, 255, 0.06);
+    --bg-input-focus: rgba(255, 255, 255, 0.10);
+
+    /* === Text === */
+    --text-primary: #F3F4F6;
+    --text-secondary: #B7BDC7;
+    --text-tertiary: #8A9099;
+    --text-disabled: #666C75;
+
+    /* === Borders === */
+    --border-subtle: rgba(255, 255, 255, 0.10);
+    --border-default: rgba(255, 255, 255, 0.14);
+    --border-strong: rgba(255, 255, 255, 0.20);
+
+    /* === Fills (Buttons) === */
+    --fill-solid: #D7DBE0;
+    --fill-solid-hover: #E2E5E9;
+    --fill-solid-active: #C4C9D0;
+    --fill-solid-contrast: #0C0E12;
+
+    /* === State === */
+    --state-info: #AAB4C3;
+    --state-success: #8FAE9A;
+    --state-warning: #C0A97C;
+    --state-danger: #B98B8B;
+
+    /* === Accent (highlight/selection) === */
+    --accent: #AAB4C3;
+    --accent-hover: #C5CDD9;
+    --accent-muted: rgba(170, 180, 195, 0.15);
+
+    /* === Radius === */
+    --radius-xs: 8px;
+    --radius-sm: 10px;
+    --radius-md: 14px;
+    --radius-lg: 18px;
+    --radius-xl: 22px;
+
+    /* === Spacing (8pt system) === */
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-5: 20px;
+    --space-6: 24px;
+    --space-8: 32px;
+    --space-10: 40px;
+    --space-12: 48px;
+
+    /* === Motion === */
+    --motion-fast: 140ms;
+    --motion-base: 200ms;
+    --motion-slow: 280ms;
+    --easing-default: cubic-bezier(0.22, 1, 0.36, 1);
+
+    /* === Layout === */
+    --system-bar-height: 40px;
+    --dock-height: 64px;
+    --glass-blur: 20px;
+  }
+
+  /* === Light Theme === */
+  .light {
+    --bg-base: #E8EAED;
+    --bg-elevated: #FFFFFF;
+    --bg-panel: rgba(255, 255, 255, 0.70);
+    --bg-panel-hover: rgba(255, 255, 255, 0.85);
+    --bg-panel-active: rgba(255, 255, 255, 0.95);
+    --bg-input: rgba(0, 0, 0, 0.04);
+    --bg-input-focus: rgba(0, 0, 0, 0.07);
+
+    --text-primary: #1A1C20;
+    --text-secondary: #5A5F68;
+    --text-tertiary: #8A9099;
+    --text-disabled: #B0B5BD;
+
+    --border-subtle: rgba(0, 0, 0, 0.08);
+    --border-default: rgba(0, 0, 0, 0.12);
+    --border-strong: rgba(0, 0, 0, 0.18);
+
+    --accent: #8899AA;
+    --accent-hover: #9AABBC;
+    --accent-muted: rgba(136, 153, 170, 0.12);
+  }
+
+  .preload * {
+    transition: none !important;
+  }
+
+  *,
+  *::before,
+  *::after {
+    transition: background-color var(--motion-base) ease,
+                border-color var(--motion-base) ease,
+                color var(--motion-base) ease,
+                box-shadow var(--motion-base) ease,
+                opacity var(--motion-base) ease,
+                transform var(--motion-base) var(--easing-default);
+  }
+
+  html,
+  body {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+  }
+
+  body {
+    background-color: var(--bg-base);
+    color: var(--text-primary);
+    font-family: system-ui, -apple-system, sans-serif;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  /* === Animations === */
+  @keyframes typing {
+    from { width: 0; }
+    to { width: 100%; }
+  }
+
+  @keyframes blink {
+    50% { border-color: transparent; }
+  }
+
+  @keyframes windowOpen {
+    from {
+      transform: scale(0.95);
+      opacity: 0;
+    }
+    to {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+
+  @keyframes windowClose {
+    from {
+      transform: scale(1);
+      opacity: 1;
+    }
+    to {
+      transform: scale(0.95);
+      opacity: 0;
+    }
+  }
+
+  @keyframes slideInRight {
+    from {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+
+  @keyframes slideOutRight {
+    from {
+      transform: translateX(0);
+      opacity: 1;
+    }
+    to {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+  }
+
+  @keyframes riseUp {
+    0% {
+      transform: translateY(40px);
+      opacity: 0;
+    }
+    80% {
+      transform: translateY(0);
+      opacity: 1;
+    }
+    100% {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  .animate-rise-up {
+    animation: riseUp 750ms ease-out forwards;
+  }
+}
+
+@utility sidebar-transition {
+  transition: width 0.3s ease;
+}
+
+@utility glass {
+  background-color: var(--bg-panel);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+}
+
+@utility glass-elevated {
+  background-color: var(--bg-elevated);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+}
+
+@utility scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-default) transparent;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  &::-webkit-scrollbar-thumb {
+    background-color: var(--border-default);
+    border-radius: 3px;
+  }
+}

@@ -33,6 +33,8 @@ export const en = {
     settings: "Settings",
     searchPlaceholder: "Type to search...",
     emptyDesktop: "Right-click on the desktop for more options",
+    restart: "Restart System",
+    shutdown: "Shutdown System",
   },
   apps: {
     videoManager: "Video Manager",
@@ -102,5 +104,8 @@ export const en = {
     about: "About EverOS",
     version: "Version",
     description: "A smart media management Web OS",
+    dockStyle: "Dock Style",
+    dockStandard: "Standard",
+    dockMini: "Mini",
   },
 } as const;

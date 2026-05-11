@@ -1,4 +1,5 @@
 export type Theme = "light" | "dark" | "system";
+export type DockStyle = "standard" | "mini";
 export type Locale = "en" | "zh";
 export type SidebarState = "expanded" | "collapsed" | "hidden";
 

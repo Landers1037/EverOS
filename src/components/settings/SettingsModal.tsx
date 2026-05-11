@@ -5,6 +5,7 @@ import { useDesktopStore } from "@/stores/useDesktopStore";
 import { useI18nStore } from "@/stores/useI18nStore";
 import { useTranslation } from "@/hooks/useTranslation";
 import type { SystemConfig, NotificationConfig, ZoomLevel, LogLevel } from "@/stores/useSettingsStore";
+import type { DockStyle } from "@/types/desktop";
 import {
   Sun,
   Moon,
@@ -52,6 +53,8 @@ export function SettingsModal() {
     setZoom,
     accentColor,
     setAccentColor,
+    dock,
+    setDockStyle,
     system,
     updateSystem,
     notifications,
@@ -150,6 +153,8 @@ export function SettingsModal() {
                 setTheme={setTheme}
                 zoom={zoom}
                 setZoom={setZoom}
+                dock={dock}
+                setDockStyle={setDockStyle}
                 accentColor={accentColor}
                 setAccentColor={setAccentColor}
                 wallpaper={wallpaper}
@@ -187,6 +192,8 @@ function AppearanceSettings({
   setTheme,
   zoom,
   setZoom,
+  dock,
+  setDockStyle,
   accentColor,
   setAccentColor,
   wallpaper,
@@ -198,6 +205,8 @@ function AppearanceSettings({
   setTheme: (t: "light" | "dark" | "system") => void;
   zoom: number;
   setZoom: (z: 75 | 90 | 100 | 125 | 150) => void;
+  dock: { style: DockStyle };
+  setDockStyle: (s: DockStyle) => void;
   accentColor: string;
   setAccentColor: (c: string) => void;
   wallpaper: string;
@@ -284,6 +293,31 @@ function AppearanceSettings({
               </button>
             );
           })}
+        </div>
+      </SettingRow>
+
+      {/* Dock Style */}
+      <SettingRow label={t("settings.dockStyle")}>
+        <div className="flex gap-2">
+          {([
+            { value: "standard" as const, labelKey: "settings.dockStandard" },
+            { value: "mini" as const, labelKey: "settings.dockMini" },
+          ]).map(({ value, labelKey }) => (
+            <button
+              key={value}
+              onClick={() => setDockStyle(value)}
+              className="px-3 py-1.5 rounded-lg text-sm border transition-colors"
+              style={{
+                borderColor:
+                  dock.style === value ? "var(--border-strong)" : "var(--border-default)",
+                backgroundColor:
+                  dock.style === value ? "var(--accent-muted)" : "transparent",
+                color: "var(--text-primary)",
+              }}
+            >
+              {t(labelKey)}
+            </button>
+          ))}
         </div>
       </SettingRow>
 

@@ -33,6 +33,8 @@ export const zh = {
     settings: "设置",
     searchPlaceholder: "输入搜索内容...",
     emptyDesktop: "右键点击桌面获取更多选项",
+    restart: "重启系统",
+    shutdown: "关闭系统",
   },
   apps: {
     videoManager: "视频管理",
@@ -101,5 +103,8 @@ export const zh = {
     about: "关于 EverOS",
     version: "版本",
     description: "智能媒体管理网页操作系统",
+    dockStyle: "程序坞样式",
+    dockStandard: "标准",
+    dockMini: "Mini",
   },
 } as const;

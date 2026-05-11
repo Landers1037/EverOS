@@ -13,6 +13,9 @@ import {
   Bell,
   Monitor,
   Wifi,
+  Power,
+  RotateCw,
+  PowerOff,
 } from "lucide-react";
 
 export function SystemBar() {
@@ -23,6 +26,7 @@ export function SystemBar() {
   const instances = useAppStore((s) => s.instances);
   const activeInstance = instances.find((i) => i.isFocused);
   const [showNotifications, setShowNotifications] = useState(false);
+  const [showPowerMenu, setShowPowerMenu] = useState(false);
 
   const timeStr = time.toLocaleTimeString([], {
     hour: "2-digit",
@@ -86,6 +90,66 @@ export function SystemBar() {
         {showNotifications && (
           <NotificationCenter onClose={() => setShowNotifications(false)} />
         )}
+        <div className="relative">
+          <button
+            onClick={() => {
+              setShowPowerMenu(!showPowerMenu);
+              hideContextMenu();
+            }}
+            className="flex items-center justify-center w-7 h-7 rounded-lg hover:bg-[var(--accent-muted)]"
+            aria-label="Power"
+          >
+            <Power size={14} />
+          </button>
+          {showPowerMenu && (
+            <>
+              <div
+                className="fixed inset-0 z-40"
+                onClick={() => setShowPowerMenu(false)}
+              />
+              <div
+                className="absolute right-0 top-full mt-1 z-50 min-w-[180px] rounded-xl overflow-hidden"
+                style={{
+                  backgroundColor: "var(--bg-elevated)",
+                  border: "1px solid var(--border-subtle)",
+                  backdropFilter: "blur(var(--glass-blur))",
+                  WebkitBackdropFilter: "blur(var(--glass-blur))",
+                }}
+              >
+                <button
+                  onClick={() => setShowPowerMenu(false)}
+                  className="flex items-center gap-3 w-full px-4 py-2.5 text-sm transition-colors"
+                  style={{ color: "var(--text-secondary)" }}
+                  onMouseEnter={(e) =>
+                    (e.currentTarget.style.backgroundColor =
+                      "var(--bg-panel-hover)")
+                  }
+                  onMouseLeave={(e) =>
+                    (e.currentTarget.style.backgroundColor = "transparent")
+                  }
+                >
+                  <RotateCw size={16} />
+                  {t("desktop.restart")}
+                </button>
+                <button
+                  onClick={() => setShowPowerMenu(false)}
+                  className="flex items-center gap-3 w-full px-4 py-2.5 text-sm transition-colors"
+                  style={{ color: "var(--text-secondary)" }}
+                  onMouseEnter={(e) =>
+                    (e.currentTarget.style.backgroundColor =
+                      "var(--bg-panel-hover)")
+                  }
+                  onMouseLeave={(e) =>
+                    (e.currentTarget.style.backgroundColor = "transparent")
+                  }
+                >
+                  <PowerOff size={16} />
+                  {t("desktop.shutdown")}
+                </button>
+              </div>
+            </>
+          )}
+        </div>
         <div className="flex items-center gap-1.5 text-xs font-medium ml-1">
           <Monitor size={12} style={{ color: "var(--text-tertiary)" }} />
           <span style={{ color: "var(--text-primary)" }}>{timeStr}</span>

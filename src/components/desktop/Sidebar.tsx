@@ -47,7 +47,7 @@ export function Sidebar() {
       className="fixed left-0 z-20 flex flex-col border-r"
       style={{
         top: "var(--system-bar-height)",
-        height: "calc(100vh - var(--system-bar-height) - var(--dock-height))",
+        height: `calc(100vh - var(--system-bar-height))`,
         width: collapsed ? 56 : 224,
         backgroundColor: "var(--bg-elevated)",
         borderColor: "var(--border-subtle)",

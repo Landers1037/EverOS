@@ -179,6 +179,16 @@
     }
   }
 
+  @keyframes dockSlideUp {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+  }
+
+  @keyframes dockSlideDown {
+    from { transform: translateY(0); }
+    to { transform: translateY(100%); }
+  }
+
   @keyframes riseUp {
     0% {
       transform: translateY(40px);

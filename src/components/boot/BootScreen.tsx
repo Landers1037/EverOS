@@ -100,7 +100,6 @@ export function BootScreen() {
           </h1>
         </div>
 
-        {phase === "loading" && (
           <p
             className="mt-4 text-sm animate-pulse"
             style={{
@@ -109,7 +108,6 @@ export function BootScreen() {
           >
             Loading system<span className="animate-pulse">...</span>
           </p>
-        )}
       </div>
     </div>)}
   </>

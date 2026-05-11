@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import type { DockStyle } from "@/types/desktop";
 
 export type SettingsCategory = "appearance" | "system" | "notifications";
 export type ZoomLevel = 75 | 90 | 100 | 125 | 150;
@@ -22,6 +23,10 @@ export interface NotificationConfig {
   style: NotifStyle;
 }
 
+export interface DockConfig {
+  style: DockStyle;
+}
+
 interface SettingsState {
   isOpen: boolean;
   activeCategory: SettingsCategory;
@@ -29,6 +34,7 @@ interface SettingsState {
   // Appearance
   zoom: ZoomLevel;
   accentColor: string;
+  dock: DockConfig;
 
   // System
   system: SystemConfig;
@@ -41,6 +47,7 @@ interface SettingsState {
   close: () => void;
   setCategory: (cat: SettingsCategory) => void;
   setZoom: (zoom: ZoomLevel) => void;
+  setDockStyle: (style: DockStyle) => void;
   setAccentColor: (color: string) => void;
   updateSystem: (config: Partial<SystemConfig>) => void;
   updateNotifications: (config: Partial<NotificationConfig>) => void;
@@ -50,6 +57,7 @@ const SYSTEM_STORAGE_KEY = "everos-settings-system";
 const NOTIF_STORAGE_KEY = "everos-settings-notifications";
 const ZOOM_STORAGE_KEY = "everos-settings-zoom";
 const ACCENT_STORAGE_KEY = "everos-settings-accent";
+const DOCK_STORAGE_KEY = "everos-settings-dock";
 
 function getInitialSystem(): SystemConfig {
   if (typeof window === "undefined") return { host: "localhost", port: 8080, password: "", username: "admin", logLevel: "info", logRetention: 7 };
@@ -84,6 +92,15 @@ function getInitialAccent(): string {
   return localStorage.getItem(ACCENT_STORAGE_KEY) ?? "#AAB4C3";
 }
 
+function getInitialDock(): DockConfig {
+  if (typeof window === "undefined") return { style: "standard" };
+  const stored = localStorage.getItem(DOCK_STORAGE_KEY);
+  if (stored) {
+    try { return JSON.parse(stored); } catch { /* ignore */ }
+  }
+  return { style: "standard" };
+}
+
 function applyAccentColor(color: string) {
   if (typeof document === "undefined") return;
   const root = document.documentElement;
@@ -110,6 +127,7 @@ export const useSettingsStore = create<SettingsState>((set, get) => {
 
     zoom: getInitialZoom(),
     accentColor: savedAccent,
+    dock: getInitialDock(),
 
     system: getInitialSystem(),
     notifications: getInitialNotifications(),
@@ -122,6 +140,12 @@ export const useSettingsStore = create<SettingsState>((set, get) => {
     setZoom: (zoom) => {
       localStorage.setItem(ZOOM_STORAGE_KEY, String(zoom));
       set({ zoom });
+    },
+
+    setDockStyle: (style) => {
+      const dock = { style };
+      localStorage.setItem(DOCK_STORAGE_KEY, JSON.stringify(dock));
+      set({ dock });
     },
 
     setAccentColor: (accentColor) => {

@@ -8,7 +8,7 @@ const ICON_DURATION_MS = 1000;
 const FULL_CYCLE_MS = ICON_DURATION_MS * ICONS.length;
 
 export function BootScreen() {
-  const { completeBoot } = useDesktopStore();
+  const { bootComplete, completeBoot } = useDesktopStore();
   const [phase, setPhase] = useState<"logo" | "loading" | "fade">("logo");
   const [displayText, setDisplayText] = useState("");
   const [iconIdx, setIconIdx] = useState(0);
@@ -18,6 +18,7 @@ export function BootScreen() {
 
   // Typing animation
   useEffect(() => {
+    if (bootComplete) return;
     let i = 0;
     const interval = setInterval(() => {
       i++;
@@ -26,12 +27,13 @@ export function BootScreen() {
         clearInterval(interval);
         setPhase("loading");
       }
-    }, 120);
+    }, 150);
     return () => clearInterval(interval);
   }, []);
 
   // Icon cycling animation — starts only after typing completes
   useEffect(() => {
+    if (bootComplete) return;
     if (phase !== "loading") return;
     const interval = setInterval(() => {
       setIconIdx((prev) => (prev + 1) % ICONS.length);
@@ -42,6 +44,7 @@ export function BootScreen() {
 
   // Loading phase: wait for at least one full animation cycle
   useEffect(() => {
+    if (bootComplete) return;
     if (phase !== "loading") return;
     const elapsed = Date.now() - mountedAt.current;
     const remaining = Math.max(0, FULL_CYCLE_MS - elapsed);
@@ -57,8 +60,8 @@ export function BootScreen() {
   const IconComponent = ICONS[iconIdx];
   const textColor = "var(--text-primary)";
 
-  return (
-    <div
+  return (<>
+    {!bootComplete && (<div
       className="fixed inset-0 z-[9999] flex items-center justify-center"
       style={{
         backgroundColor: "var(--bg-base)",
@@ -108,6 +111,7 @@ export function BootScreen() {
           </p>
         )}
       </div>
-    </div>
+    </div>)}
+  </>
   );
 }

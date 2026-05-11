@@ -8,6 +8,7 @@ import { Dock } from "./Dock";
 import { WindowManager } from "@/components/window/WindowManager";
 import { ContextMenu } from "./ContextMenu";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { SettingsModal } from "@/components/settings/SettingsModal";
 import { useKeyboard } from "@/hooks/useKeyboard";
 
 export function Desktop() {
@@ -33,6 +34,7 @@ export function Desktop() {
       <SystemBar />
       <Dock />
       <ContextMenu />
+      <SettingsModal />
     </div>
   );
 }

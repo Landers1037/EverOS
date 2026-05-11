@@ -1,6 +1,7 @@
 "use client";
 import { useDesktopStore } from "@/stores/useDesktopStore";
 import { useAppStore } from "@/stores/useAppStore";
+import { useSettingsStore } from "@/stores/useSettingsStore";
 import { useTranslation } from "@/hooks/useTranslation";
 import { cn } from "@/utils/cn";
 import {
@@ -115,7 +116,13 @@ export function Sidebar() {
             return (
               <button
                 key={item.appId || item.labelKey}
-                onClick={() => item.appId && openApp(item.appId)}
+                onClick={() => {
+                  if (item.appId === "settings") {
+                    useSettingsStore.getState().open();
+                  } else if (item.appId) {
+                    openApp(item.appId);
+                  }
+                }}
                 className={cn(
                   "flex items-center gap-3 w-full px-2 py-2 rounded-lg text-sm mb-0.5",
                   "hover:bg-[var(--accent-muted)] transition-colors",

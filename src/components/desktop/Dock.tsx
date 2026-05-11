@@ -1,5 +1,6 @@
 "use client";
 import { useAppStore } from "@/stores/useAppStore";
+import { useSettingsStore } from "@/stores/useSettingsStore";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { cn } from "@/utils/cn";
@@ -27,6 +28,10 @@ export function Dock() {
   };
 
   const handleAppClick = (appId: string) => {
+    if (appId === "settings") {
+      useSettingsStore.getState().open();
+      return;
+    }
     const instance = getInstanceForApp(appId);
     if (instance) {
       if (instance.isFocused) {

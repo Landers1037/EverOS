@@ -2,17 +2,15 @@
 import { useSettingsStore } from "@/stores/useSettingsStore";
 import { useThemeStore } from "@/stores/useThemeStore";
 import { useDesktopStore } from "@/stores/useDesktopStore";
+import { useI18nStore } from "@/stores/useI18nStore";
+import { useTranslation } from "@/hooks/useTranslation";
 import type { SystemConfig, NotificationConfig, ZoomLevel, LogLevel } from "@/stores/useSettingsStore";
 import {
   Sun,
   Moon,
   Monitor,
   Palette,
-  MonitorIcon,
   Server,
-  KeyRound,
-  User,
-  FileText,
   Bell,
   BellRing,
   BellOff,
@@ -21,9 +19,9 @@ import {
 import { useState } from "react";
 
 const CATEGORIES = [
-  { id: "appearance" as const, label: "Appearance", icon: Palette },
-  { id: "system" as const, label: "System", icon: Server },
-  { id: "notifications" as const, label: "Notifications", icon: Bell },
+  { id: "appearance" as const, key: "settings.appearance", icon: Palette },
+  { id: "system" as const, key: "settings.system", icon: Server },
+  { id: "notifications" as const, key: "settings.notifications", icon: Bell },
 ];
 
 const ACCENT_COLORS = [
@@ -44,6 +42,7 @@ const ZOOM_OPTIONS: { value: number; label: string }[] = [
 ];
 
 export function SettingsModal() {
+  const { t } = useTranslation();
   const {
     isOpen,
     close,
@@ -101,7 +100,7 @@ export function SettingsModal() {
                 height: 20,
                 backgroundColor: "var(--state-danger)",
               }}
-              title="Close"
+              title={t("common.close")}
             >
               <X size={12} style={{ color: "#fff", opacity: 0.8 }} />
             </button>
@@ -110,7 +109,7 @@ export function SettingsModal() {
             className="text-sm font-medium absolute left-1/2 -translate-x-1/2"
             style={{ color: "var(--text-primary)" }}
           >
-            Settings
+            {t("apps.settings")}
           </span>
           <div style={{ width: 20 }} />
         </div>
@@ -122,7 +121,7 @@ export function SettingsModal() {
             className="flex-shrink-0 overflow-y-auto scrollbar-thin p-2"
             style={{ width: 180, borderRight: "1px solid var(--border-subtle)" }}
           >
-            {CATEGORIES.map(({ id, label, icon: Icon }) => (
+            {CATEGORIES.map(({ id, key, icon: Icon }) => (
               <button
                 key={id}
                 onClick={() => setCategory(id)}
@@ -137,7 +136,7 @@ export function SettingsModal() {
                 }}
               >
                 <Icon size={16} />
-                {label}
+                {t(key)}
               </button>
             ))}
           </div>
@@ -146,6 +145,7 @@ export function SettingsModal() {
           <div className="flex-1 overflow-y-auto scrollbar-thin p-6">
             {activeCategory === "appearance" && (
               <AppearanceSettings
+                t={t}
                 theme={theme}
                 setTheme={setTheme}
                 zoom={zoom}
@@ -159,6 +159,7 @@ export function SettingsModal() {
             )}
             {activeCategory === "system" && (
               <SystemSettings
+                t={t}
                 config={system}
                 updateConfig={updateSystem}
                 showPassword={showPassword}
@@ -167,6 +168,7 @@ export function SettingsModal() {
             )}
             {activeCategory === "notifications" && (
               <NotificationSettings
+                t={t}
                 config={notifications}
                 updateConfig={updateNotifications}
               />
@@ -180,6 +182,7 @@ export function SettingsModal() {
 
 /* ─── Appearance ─── */
 function AppearanceSettings({
+  t,
   theme,
   setTheme,
   zoom,
@@ -190,6 +193,7 @@ function AppearanceSettings({
   wallpapers,
   setWallpaper,
 }: {
+  t: (key: string) => string;
   theme: string;
   setTheme: (t: "light" | "dark" | "system") => void;
   zoom: number;
@@ -202,16 +206,16 @@ function AppearanceSettings({
 }) {
   return (
     <div>
-      <SectionTitle>Appearance</SectionTitle>
+      <SectionTitle>{t("settings.appearance")}</SectionTitle>
 
       {/* Theme */}
-      <SettingRow label="Theme">
+      <SettingRow label={t("settings.theme")}>
         <div className="flex gap-2">
           {([
-            { value: "light" as const, label: "Light", icon: Sun },
-            { value: "dark" as const, label: "Dark", icon: Moon },
-            { value: "system" as const, label: "System", icon: Monitor },
-          ] as const).map(({ value, label, icon: Icon }) => (
+            { value: "light" as const, labelKey: "settings.themeLight", icon: Sun },
+            { value: "dark" as const, labelKey: "settings.themeDark", icon: Moon },
+            { value: "system" as const, labelKey: "settings.themeSystem", icon: Monitor },
+          ] as const).map(({ value, labelKey, icon: Icon }) => (
             <button
               key={value}
               onClick={() => setTheme(value)}
@@ -225,14 +229,14 @@ function AppearanceSettings({
               }}
             >
               <Icon size={14} />
-              {label}
+              {t(labelKey)}
             </button>
           ))}
         </div>
       </SettingRow>
 
       {/* Accent Color */}
-      <SettingRow label="Accent Color">
+      <SettingRow label={t("settings.accentColor")}>
         <div className="flex gap-2">
           {ACCENT_COLORS.map((c) => (
             <button
@@ -253,7 +257,7 @@ function AppearanceSettings({
       </SettingRow>
 
       {/* Desktop Background */}
-      <SettingRow label="Desktop Background">
+      <SettingRow label={t("settings.desktopBackground")}>
         <div className="grid grid-cols-4 gap-2 w-full max-w-sm">
           {wallpapers.slice(0, 8).map((wp) => {
             const isGradient = wp.src.startsWith("linear");
@@ -284,7 +288,7 @@ function AppearanceSettings({
       </SettingRow>
 
       {/* Default Zoom */}
-      <SettingRow label="Default Zoom">
+      <SettingRow label={t("settings.defaultZoom")}>
         <div className="flex gap-2">
           {ZOOM_OPTIONS.map((opt) => (
             <button
@@ -312,22 +316,58 @@ function AppearanceSettings({
 
 /* ─── System ─── */
 function SystemSettings({
+  t,
   config,
   updateConfig,
   showPassword,
   setShowPassword,
 }: {
+  t: (key: string) => string;
   config: SystemConfig;
   updateConfig: (c: Partial<SystemConfig>) => void;
   showPassword: boolean;
   setShowPassword: (v: boolean) => void;
 }) {
+  const { locale, setLocale } = useI18nStore();
+
   return (
     <div>
-      <SectionTitle>System</SectionTitle>
+      <SectionTitle>{t("settings.system")}</SectionTitle>
+
+      {/* Language */}
+      <SettingRow label={t("settings.language")}>
+        <div className="flex gap-2">
+          <button
+            onClick={() => setLocale("en")}
+            className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm border transition-colors"
+            style={{
+              borderColor:
+                locale === "en" ? "var(--border-strong)" : "var(--border-default)",
+              backgroundColor:
+                locale === "en" ? "var(--accent-muted)" : "transparent",
+              color: "var(--text-primary)",
+            }}
+          >
+            English
+          </button>
+          <button
+            onClick={() => setLocale("zh")}
+            className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm border transition-colors"
+            style={{
+              borderColor:
+                locale === "zh" ? "var(--border-strong)" : "var(--border-default)",
+              backgroundColor:
+                locale === "zh" ? "var(--accent-muted)" : "transparent",
+              color: "var(--text-primary)",
+            }}
+          >
+            中文
+          </button>
+        </div>
+      </SettingRow>
 
       {/* Backend Host */}
-      <SettingRow label="Backend Host">
+      <SettingRow label={t("settings.backendHost")}>
         <input
           type="text"
           value={config.host}
@@ -343,7 +383,7 @@ function SystemSettings({
       </SettingRow>
 
       {/* Port */}
-      <SettingRow label="Port">
+      <SettingRow label={t("settings.port")}>
         <input
           type="number"
           value={config.port}
@@ -359,7 +399,7 @@ function SystemSettings({
       </SettingRow>
 
       {/* Password */}
-      <SettingRow label="Password">
+      <SettingRow label={t("settings.password")}>
         <div className="relative">
           <input
             type={showPassword ? "text" : "password"}
@@ -378,13 +418,13 @@ function SystemSettings({
             className="absolute right-2 top-1/2 -translate-y-1/2 text-sm"
             style={{ color: "var(--text-tertiary)" }}
           >
-            {showPassword ? "Hide" : "Show"}
+            {showPassword ? t("settings.hide") : t("settings.show")}
           </button>
         </div>
       </SettingRow>
 
       {/* Username */}
-      <SettingRow label="Username">
+      <SettingRow label={t("settings.username")}>
         <input
           type="text"
           value={config.username}
@@ -400,7 +440,7 @@ function SystemSettings({
       </SettingRow>
 
       {/* Log Level */}
-      <SettingRow label="Log Level">
+      <SettingRow label={t("settings.logLevel")}>
         <select
           value={config.logLevel}
           onChange={(e) => updateConfig({ logLevel: e.target.value as LogLevel })}
@@ -419,7 +459,7 @@ function SystemSettings({
       </SettingRow>
 
       {/* Log Retention */}
-      <SettingRow label="Log Retention">
+      <SettingRow label={t("settings.logRetention")}>
         <div className="flex items-center gap-2">
           <input
             type="number"
@@ -435,7 +475,7 @@ function SystemSettings({
             }}
           />
           <span className="text-sm" style={{ color: "var(--text-tertiary)" }}>
-            days
+            {t("settings.days")}
           </span>
         </div>
       </SettingRow>
@@ -445,24 +485,26 @@ function SystemSettings({
 
 /* ─── Notifications ─── */
 function NotificationSettings({
+  t,
   config,
   updateConfig,
 }: {
+  t: (key: string) => string;
   config: NotificationConfig;
   updateConfig: (c: Partial<NotificationConfig>) => void;
 }) {
   return (
     <div>
-      <SectionTitle>Notifications</SectionTitle>
+      <SectionTitle>{t("settings.notifications")}</SectionTitle>
 
       {/* Notification Level */}
-      <SettingRow label="Notification Level">
+      <SettingRow label={t("settings.notificationLevel")}>
         <div className="flex gap-2">
           {([
-            { value: "all" as const, label: "All", icon: BellRing },
-            { value: "important" as const, label: "Important", icon: Bell },
-            { value: "none" as const, label: "None", icon: BellOff },
-          ] as const).map(({ value, label, icon: Icon }) => (
+            { value: "all" as const, labelKey: "settings.all", icon: BellRing },
+            { value: "important" as const, labelKey: "settings.important", icon: Bell },
+            { value: "none" as const, labelKey: "settings.none", icon: BellOff },
+          ] as const).map(({ value, labelKey, icon: Icon }) => (
             <button
               key={value}
               onClick={() => updateConfig({ level: value })}
@@ -478,20 +520,20 @@ function NotificationSettings({
               }}
             >
               <Icon size={14} />
-              {label}
+              {t(labelKey)}
             </button>
           ))}
         </div>
       </SettingRow>
 
       {/* Notification Scope */}
-      <SettingRow label="Scope">
+      <SettingRow label={t("settings.scope")}>
         <div className="flex gap-2">
           {([
-            { value: "all" as const, label: "All Apps" },
-            { value: "system" as const, label: "System Only" },
-            { value: "custom" as const, label: "Custom" },
-          ] as const).map(({ value, label }) => (
+            { value: "all" as const, labelKey: "settings.allApps" },
+            { value: "system" as const, labelKey: "settings.systemOnly" },
+            { value: "custom" as const, labelKey: "settings.custom" },
+          ] as const).map(({ value, labelKey }) => (
             <button
               key={value}
               onClick={() => updateConfig({ scope: value })}
@@ -506,20 +548,20 @@ function NotificationSettings({
                 color: "var(--text-primary)",
               }}
             >
-              {label}
+              {t(labelKey)}
             </button>
           ))}
         </div>
       </SettingRow>
 
       {/* Notification Style */}
-      <SettingRow label="Style">
+      <SettingRow label={t("settings.style")}>
         <div className="flex gap-2">
           {([
-            { value: "banner" as const, label: "Banner" },
-            { value: "alert" as const, label: "Alert" },
-            { value: "none" as const, label: "None" },
-          ] as const).map(({ value, label }) => (
+            { value: "banner" as const, labelKey: "settings.banner" },
+            { value: "alert" as const, labelKey: "settings.alert" },
+            { value: "none" as const, labelKey: "settings.none" },
+          ] as const).map(({ value, labelKey }) => (
             <button
               key={value}
               onClick={() => updateConfig({ style: value })}
@@ -534,7 +576,7 @@ function NotificationSettings({
                 color: "var(--text-primary)",
               }}
             >
-              {label}
+              {t(labelKey)}
             </button>
           ))}
         </div>

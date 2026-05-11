@@ -3,6 +3,7 @@ import type { AppInstance, ResizeDirection } from "@/types/app";
 import { useAppStore } from "@/stores/useAppStore";
 import { useWindowDrag } from "@/hooks/useWindowDrag";
 import { useWindowResize } from "@/hooks/useWindowResize";
+import { useTranslation } from "@/hooks/useTranslation";
 import { WindowControls } from "./WindowControls";
 import { getAppComponent } from "@/components/apps/registry";
 import {
@@ -30,6 +31,7 @@ interface AppWindowProps {
 export function AppWindow({ instance }: AppWindowProps) {
   const { focusApp, closeApp, minimizeApp, maximizeApp, restoreApp } =
     useAppStore();
+  const { t } = useTranslation();
   const { handleMouseDown } = useWindowDrag(instance.id);
   const { startResize } = useWindowResize(instance.id);
 
@@ -88,7 +90,7 @@ export function AppWindow({ instance }: AppWindowProps) {
           className="ml-2 text-sm font-medium flex-1 truncate"
           style={{ color: "var(--text-primary)" }}
         >
-          {appDef?.nameKey ?? instance.title}
+          {appDef ? t(appDef.nameKey) : instance.title}
         </span>
         <WindowControls
           onMinimize={() => minimizeApp(instance.id)}

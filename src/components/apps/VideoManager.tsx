@@ -191,10 +191,10 @@ export function VideoManager({ instance: _instance }: VideoManagerProps) {
             <table className="w-full text-sm">
               <thead>
                 <tr style={{ color: "var(--text-tertiary)", borderBottom: "1px solid var(--border-default)" }}>
-                  <th className="text-left font-medium py-2 px-2">{t("common.search")}</th>
-                  <th className="text-left font-medium py-2 px-2">Duration</th>
-                  <th className="text-left font-medium py-2 px-2">Resolution</th>
-                  <th className="text-left font-medium py-2 px-2">Size</th>
+                  <th className="text-left font-medium py-2 px-2">{t("common.name")}</th>
+                  <th className="text-left font-medium py-2 px-2">{t("common.duration")}</th>
+                  <th className="text-left font-medium py-2 px-2">{t("common.resolution")}</th>
+                  <th className="text-left font-medium py-2 px-2">{t("common.size")}</th>
                 </tr>
               </thead>
               <tbody>

@@ -1,7 +1,57 @@
 import { create } from "zustand";
 import type { DockStyle } from "@/types/desktop";
 
-export type SettingsCategory = "appearance" | "system" | "notifications";
+export type SettingsCategory = "appearance" | "system" | "notifications" | "storage";
+export type StorageSubCategory = "file" | "temp" | "database";
+export type FilePermission = "read" | "readwrite";
+export type DatabaseEngine = "sqlite" | "bbolt" | "mysql";
+
+export interface FileStoragePath {
+  id: string;
+  path: string;
+  permission: FilePermission;
+  totalSpace: number;
+  usedSpace: number;
+  diskType: string;
+}
+
+export interface SqliteConfig {
+  databaseName: string;
+  path: string;
+}
+
+export interface BBoltConfig {
+  databaseName: string;
+  path: string;
+}
+
+export interface MysqlConfig {
+  host: string;
+  port: number;
+  username: string;
+  password: string;
+  databaseName: string;
+  dsnParams: string;
+}
+
+export interface DatabaseConfig {
+  engine: DatabaseEngine;
+  sqlite: SqliteConfig;
+  bbolt: BBoltConfig;
+  mysql: MysqlConfig;
+}
+
+export interface TempFileConfig {
+  path: string;
+  usedSpace: number;
+  freeSpace: number;
+}
+
+export interface StorageConfig {
+  filePaths: FileStoragePath[];
+  database: DatabaseConfig;
+  temp: TempFileConfig;
+}
 export type ZoomLevel = 75 | 90 | 100 | 125 | 150;
 export type LogLevel = "debug" | "info" | "warn" | "error";
 export type NotifLevel = "all" | "important" | "none";
@@ -42,6 +92,9 @@ interface SettingsState {
   // Notifications
   notifications: NotificationConfig;
 
+  // Storage
+  storage: StorageConfig;
+
   // Actions
   open: () => void;
   close: () => void;
@@ -51,10 +104,19 @@ interface SettingsState {
   setAccentColor: (color: string) => void;
   updateSystem: (config: Partial<SystemConfig>) => void;
   updateNotifications: (config: Partial<NotificationConfig>) => void;
+  updateStorage: (config: Partial<StorageConfig>) => void;
+  updateFilePath: (id: string, config: Partial<FileStoragePath>) => void;
+  addFilePath: () => void;
+  removeFilePath: (id: string) => void;
+  setDatabaseEngine: (engine: DatabaseEngine) => void;
+  updateDatabaseConfig: (engine: DatabaseEngine, config: Partial<SqliteConfig | BBoltConfig | MysqlConfig>) => void;
+  updateTempConfig: (config: Partial<TempFileConfig>) => void;
+  clearTempFiles: () => void;
 }
 
 const SYSTEM_STORAGE_KEY = "everos-settings-system";
 const NOTIF_STORAGE_KEY = "everos-settings-notifications";
+const STORAGE_KEY = "everos-settings-storage";
 const ZOOM_STORAGE_KEY = "everos-settings-zoom";
 const ACCENT_STORAGE_KEY = "everos-settings-accent";
 const DOCK_STORAGE_KEY = "everos-settings-dock";
@@ -101,6 +163,28 @@ function getInitialDock(): DockConfig {
   return { style: "standard" };
 }
 
+function getInitialStorage(): StorageConfig {
+  if (typeof window === "undefined") return getDefaultStorage();
+  const stored = localStorage.getItem(STORAGE_KEY);
+  if (stored) {
+    try { return JSON.parse(stored); } catch { /* ignore */ }
+  }
+  return getDefaultStorage();
+}
+
+function getDefaultStorage(): StorageConfig {
+  return {
+    filePaths: [],
+    database: {
+      engine: "sqlite",
+      sqlite: { databaseName: "everos", path: "/data/everos/sqlite" },
+      bbolt: { databaseName: "everos", path: "/data/everos/bbolt" },
+      mysql: { host: "localhost", port: 3306, username: "root", password: "", databaseName: "everos", dsnParams: "" },
+    },
+    temp: { path: "/tmp/everos", usedSpace: 0, freeSpace: 0 },
+  };
+}
+
 function applyAccentColor(color: string) {
   if (typeof document === "undefined") return;
   const root = document.documentElement;
@@ -131,6 +215,7 @@ export const useSettingsStore = create<SettingsState>((set, get) => {
 
     system: getInitialSystem(),
     notifications: getInitialNotifications(),
+    storage: getInitialStorage(),
 
     open: () => set({ isOpen: true }),
     close: () => set({ isOpen: false }),
@@ -164,6 +249,70 @@ export const useSettingsStore = create<SettingsState>((set, get) => {
       const next = { ...get().notifications, ...config };
       localStorage.setItem(NOTIF_STORAGE_KEY, JSON.stringify(next));
       set({ notifications: next });
+    },
+
+    updateStorage: (config) => {
+      const next = { ...get().storage, ...config };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+      set({ storage: next });
+    },
+
+    updateFilePath: (id, config) => {
+      const filePaths = get().storage.filePaths.map((fp) =>
+        fp.id === id ? { ...fp, ...config } : fp,
+      );
+      const next = { ...get().storage, filePaths };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+      set({ storage: next });
+    },
+
+    addFilePath: () => {
+      const newPath: FileStoragePath = {
+        id: crypto.randomUUID?.() ?? Date.now().toString(),
+        path: "",
+        permission: "read",
+        totalSpace: 0,
+        usedSpace: 0,
+        diskType: "",
+      };
+      const filePaths = [...get().storage.filePaths, newPath];
+      const next = { ...get().storage, filePaths };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+      set({ storage: next });
+    },
+
+    removeFilePath: (id) => {
+      const filePaths = get().storage.filePaths.filter((fp) => fp.id !== id);
+      const next = { ...get().storage, filePaths };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+      set({ storage: next });
+    },
+
+    setDatabaseEngine: (engine) => {
+      const next = { ...get().storage, database: { ...get().storage.database, engine } };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+      set({ storage: next });
+    },
+
+    updateDatabaseConfig: (engine, config) => {
+      const next = {
+        ...get().storage,
+        database: { ...get().storage.database, [engine]: { ...get().storage.database[engine], ...config } },
+      };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+      set({ storage: next });
+    },
+
+    updateTempConfig: (config) => {
+      const next = { ...get().storage, temp: { ...get().storage.temp, ...config } };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+      set({ storage: next });
+    },
+
+    clearTempFiles: () => {
+      const next = { ...get().storage, temp: { ...get().storage.temp, usedSpace: 0 } };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+      set({ storage: next });
     },
   };
 });

@@ -1,5 +1,4 @@
 "use client";
-import { useCallback } from "react";
 import { useI18nStore } from "@/stores/useI18nStore";
 
 export function useTranslation() {

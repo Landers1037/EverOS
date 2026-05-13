@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { DesktopProviders } from "@/providers/DesktopProviders";
+import "@cyntler/react-doc-viewer/dist/index.css";
+import "react-markdown-editor-lite/lib/index.css";
+import "react-helios/styles";
 
 export const metadata: Metadata = {
   title: "EverOS",

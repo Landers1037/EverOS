@@ -399,6 +399,20 @@
     background-color: var(--divider-strong);
   }
 
+  .ui-card {
+    transition:
+      background-color var(--motion-base) ease,
+      border-color var(--motion-base) ease,
+      box-shadow var(--motion-base) ease,
+      transform var(--motion-fast) var(--easing-default);
+  }
+
+  .ui-card:hover {
+    background-color: var(--bg-card-hover);
+    border-color: var(--border-strong);
+    transform: translateY(-1px);
+  }
+
   .ui-title {
     color: var(--text-primary);
     font-size: var(--text-xl);
@@ -408,6 +422,73 @@
 
   .ui-subtle {
     color: var(--text-tertiary);
+  }
+}
+
+@layer components {
+  .rpv-default-layout__toolbar {
+    background-color: var(--bg-panel);
+    border-bottom: 1px solid var(--border-default);
+  }
+
+  .rpv-default-layout__body {
+    background-color: var(--bg-elevated);
+  }
+
+  .rmel-button,
+  .rmel-toolbar button {
+    border-radius: var(--radius-md);
+  }
+
+  .rmel-toolbar {
+    background-color: var(--bg-panel);
+    border-bottom: 1px solid var(--border-default);
+  }
+
+  .rmel-editor,
+  .rmel-preview {
+    background-color: var(--bg-elevated);
+    color: var(--text-primary);
+  }
+
+  .rmel-editor .rmel-textarea {
+    color: var(--text-primary);
+  }
+
+  .rmel-editor .rmel-textarea::placeholder {
+    color: var(--text-tertiary);
+  }
+
+  .rmel-preview {
+    color: var(--text-secondary);
+  }
+
+  .rmel-preview pre,
+  .rmel-preview code {
+    background-color: var(--bg-input);
+    border-radius: var(--radius-sm);
+  }
+
+  .rmel-preview blockquote {
+    border-left: 3px solid var(--border-strong);
+    color: var(--text-secondary);
+    background-color: var(--bg-panel);
+  }
+
+  .rmel-preview table {
+    border-collapse: collapse;
+    width: 100%;
+  }
+
+  .rmel-preview th,
+  .rmel-preview td {
+    border: 1px solid var(--border-subtle);
+    padding: 8px;
+  }
+
+  .rmel-preview th {
+    background-color: var(--bg-panel);
+    color: var(--text-primary);
   }
 }
 

@@ -14,7 +14,11 @@ export function BootScreen() {
   const [iconIdx, setIconIdx] = useState(0);
   const [animKey, setAnimKey] = useState(0);
   const fullText = "For EverOS";
-  const mountedAt = useRef(Date.now());
+  const mountedAt = useRef<number | null>(null);
+
+  useEffect(() => {
+    mountedAt.current = Date.now();
+  }, []);
 
   // Typing animation
   useEffect(() => {
@@ -29,7 +33,7 @@ export function BootScreen() {
       }
     }, 150);
     return () => clearInterval(interval);
-  }, []);
+  }, [bootComplete]);
 
   // Icon cycling animation — starts only after typing completes
   useEffect(() => {
@@ -40,12 +44,13 @@ export function BootScreen() {
       setAnimKey((prev) => prev + 1);
     }, ICON_DURATION_MS);
     return () => clearInterval(interval);
-  }, [phase]);
+  }, [bootComplete, phase]);
 
   // Loading phase: wait for at least one full animation cycle
   useEffect(() => {
     if (bootComplete) return;
     if (phase !== "loading") return;
+    if (!mountedAt.current) return;
     const elapsed = Date.now() - mountedAt.current;
     const remaining = Math.max(0, FULL_CYCLE_MS - elapsed);
 
@@ -55,7 +60,7 @@ export function BootScreen() {
     }, remaining + 1000);
 
     return () => clearTimeout(timer);
-  }, [phase, completeBoot]);
+  }, [bootComplete, phase, completeBoot]);
 
   const IconComponent = ICONS[iconIdx];
   const textColor = "var(--text-primary)";

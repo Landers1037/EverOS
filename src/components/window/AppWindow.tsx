@@ -5,11 +5,15 @@ import { useWindowDrag } from "@/hooks/useWindowDrag";
 import { useWindowResize } from "@/hooks/useWindowResize";
 import { useTranslation } from "@/hooks/useTranslation";
 import { WindowControls } from "./WindowControls";
-import { getAppComponent } from "@/components/apps/registry";
+import { APP_COMPONENTS, FallbackApp } from "@/components/apps/registry";
 import {
   Clapperboard,
   Music,
   Image,
+  FileText,
+  NotebookPen,
+  MonitorPlay,
+  Trash2,
   Settings,
   Folder,
 } from "lucide-react";
@@ -20,6 +24,10 @@ const iconMap: Record<string, React.ComponentType<{ size?: number }>> = {
   Clapperboard,
   Music,
   Image,
+  FileText,
+  NotebookPen,
+  MonitorPlay,
+  Trash2,
   Settings,
   Folder,
 };
@@ -38,7 +46,7 @@ export function AppWindow({ instance }: AppWindowProps) {
   const appDef = useAppStore((s) =>
     s.appDefinitions.find((a) => a.id === instance.appId)
   );
-  const AppComponent = getAppComponent(instance.appId);
+  const AppComponent = APP_COMPONENTS[instance.appId] ?? FallbackApp;
   const Icon = iconMap[appDef?.icon ?? ""] ?? Folder;
   const isMobile = useMediaQuery("(max-width: 768px)");
 

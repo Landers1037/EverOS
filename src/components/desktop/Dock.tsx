@@ -6,12 +6,27 @@ import { useTranslation } from "@/hooks/useTranslation";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { cn } from "@/utils/cn";
 import { SIDEBAR_COLLAPSED_WIDTH, SIDEBAR_WIDTH } from "@/utils/constants";
-import { Grid3X3, Clapperboard, Music, Image, Settings, Folder } from "lucide-react";
+import {
+  Grid3X3,
+  Clapperboard,
+  Music,
+  Image,
+  FileText,
+  NotebookPen,
+  MonitorPlay,
+  Trash2,
+  Settings,
+  Folder,
+} from "lucide-react";
 
 const iconMap: Record<string, React.ComponentType<{ size?: number }>> = {
   Clapperboard,
   Music,
   Image,
+  FileText,
+  NotebookPen,
+  MonitorPlay,
+  Trash2,
   Settings,
   Folder,
 };

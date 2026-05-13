@@ -2,6 +2,10 @@ export type AppComponentType =
   | "video-manager"
   | "music-manager"
   | "image-manager"
+  | "document-manager"
+  | "notes-manager"
+  | "player-app"
+  | "trash-manager"
   | "settings"
   | "file-manager";
 

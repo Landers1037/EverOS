@@ -1,0 +1,44 @@
+[server]
+host = "0.0.0.0"
+port = 7070
+
+[auth.jwt]
+issuer = "everos"
+audience = "everos-ui"
+secret = "change-me"
+expires_minutes = 10080
+
+[database]
+engine = "sqlite"
+
+[database.sqlite]
+path = "./data/sqlite"
+name = "everos.db"
+
+[database.sled]
+path = "./data/sled"
+
+[storage]
+mount_paths = []
+exclude_dirs = ["$RECYCLE.BIN", ".Trash", "node_modules"]
+
+[storage.extensions]
+photo = ["jpg", "jpeg", "png", "webp", "gif"]
+video = ["mp4", "mov", "mkv", "webm"]
+music = ["mp3", "flac", "wav", "aac", "m4a"]
+
+[middleware]
+logging = true
+trace = true
+cors = true
+gzip = false
+
+[cors]
+allow_origins = ["*"]
+allow_headers = ["*"]
+allow_methods = ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+
+[log]
+level = "info"
+retention_days = 7
+

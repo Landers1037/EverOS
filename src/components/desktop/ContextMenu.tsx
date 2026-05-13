@@ -17,16 +17,15 @@ export function ContextMenu() {
   return (
     <div
       ref={ref}
-      className="fixed z-50 min-w-44 rounded-lg border shadow-lg py-1"
+      className="ui-surface fixed z-50 min-w-52 rounded-[var(--radius-xl)] p-2"
       style={{
         left: contextMenu.x,
         top: contextMenu.y,
-        backgroundColor: "var(--bg-elevated)",
-        borderColor: "var(--border-default)",
+        boxShadow: "var(--shadow-md)",
       }}
     >
       <p
-        className="px-3 py-1.5 text-xs font-medium uppercase tracking-wider"
+        className="px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.16em]"
         style={{ color: "var(--text-tertiary)" }}
       >
         {t("desktop.wallpaper")}
@@ -34,7 +33,7 @@ export function ContextMenu() {
       {wallpapers.slice(0, 5).map((wp) => (
         <button
           key={wp.id}
-          className="flex items-center gap-2 w-full px-3 py-1.5 text-sm hover:bg-[var(--accent-muted)] transition-colors"
+          className="ui-control flex h-10 w-full justify-start gap-3 rounded-[var(--radius-md)] px-3 text-sm"
           style={{ color: "var(--text-primary)" }}
           onClick={() => {
             setWallpaper(wp.id);
@@ -53,11 +52,10 @@ export function ContextMenu() {
         </button>
       ))}
       <div
-        className="my-1 mx-2 h-px"
-        style={{ backgroundColor: "var(--border-default)" }}
+        className="ui-divider my-2 mx-2 h-px"
       />
       <button
-        className="flex items-center gap-2 w-full px-3 py-1.5 text-sm hover:bg-[var(--accent-muted)] transition-colors"
+        className="ui-control flex h-10 w-full justify-start gap-2 rounded-[var(--radius-md)] px-3 text-sm"
         style={{ color: "var(--text-primary)" }}
         onClick={hideContextMenu}
       >

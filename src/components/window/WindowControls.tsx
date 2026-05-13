@@ -14,6 +14,9 @@ export function WindowControls({
   onClose,
   isMaximized,
 }: WindowControlsProps) {
+  const buttonClass =
+    "ui-control ui-icon-button rounded-[var(--radius-md)]";
+
   return (
     <div className="flex items-center gap-1">
       <button
@@ -21,7 +24,7 @@ export function WindowControls({
           e.stopPropagation();
           onMinimize();
         }}
-        className="flex items-center justify-center w-6 h-6 rounded-md hover:bg-[var(--accent-muted)] transition-colors"
+        className={buttonClass}
         style={{ color: "var(--text-secondary)" }}
         title="Minimize"
       >
@@ -32,24 +35,31 @@ export function WindowControls({
           e.stopPropagation();
           onMaximize();
         }}
-        className="flex items-center justify-center w-6 h-6 rounded-md hover:bg-[var(--accent-muted)] transition-colors"
+        className={buttonClass}
         style={{ color: "var(--text-secondary)" }}
         title={isMaximized ? "Restore" : "Maximize"}
       >
-        {isMaximized ? (
-          <Square size={10} />
-        ) : (
-          <Square size={10} />
-        )}
+        <Square size={10} />
       </button>
       <button
         onClick={(e) => {
           e.stopPropagation();
           onClose();
         }}
-        className="flex items-center justify-center w-6 h-6 rounded-md hover:bg-red-500 hover:text-white transition-colors"
-        style={{ color: "var(--text-secondary)" }}
+        className={buttonClass}
+        style={{
+          color: "var(--text-secondary)",
+          backgroundColor: "transparent",
+        }}
         title="Close"
+        onMouseEnter={(e) => {
+          e.currentTarget.style.backgroundColor = "var(--state-danger)";
+          e.currentTarget.style.color = "#ffffff";
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.backgroundColor = "transparent";
+          e.currentTarget.style.color = "var(--text-secondary)";
+        }}
       >
         <X size={12} />
       </button>

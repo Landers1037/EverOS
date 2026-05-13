@@ -4,6 +4,7 @@ import { useAppStore } from "@/stores/useAppStore";
 import { useSettingsStore } from "@/stores/useSettingsStore";
 import { useTranslation } from "@/hooks/useTranslation";
 import { cn } from "@/utils/cn";
+import { SIDEBAR_COLLAPSED_WIDTH, SIDEBAR_WIDTH } from "@/utils/constants";
 import {
   Clapperboard,
   Music,
@@ -37,6 +38,7 @@ const iconMap: Record<string, React.ComponentType<{ size?: number }>> = {
 export function Sidebar() {
   const { sidebarState, toggleSidebar } = useDesktopStore();
   const { openApp, instances } = useAppStore();
+  const sidebarOpacity = useSettingsStore((state) => state.sidebarOpacity);
   const { t } = useTranslation();
   const isMobile = useMediaQuery("(max-width: 768px)");
 
@@ -44,30 +46,43 @@ export function Sidebar() {
 
   return (
     <aside
-      className="fixed left-0 z-20 flex flex-col border-r"
+      className="ui-surface fixed left-4 z-20 flex flex-col overflow-hidden rounded-[18px]"
       style={{
-        top: "var(--system-bar-height)",
-        height: `calc(100vh - var(--system-bar-height))`,
-        width: collapsed ? 56 : 224,
-        backgroundColor: "var(--bg-elevated)",
-        borderColor: "var(--border-subtle)",
-        backdropFilter: "blur(var(--glass-blur))",
-        WebkitBackdropFilter: "blur(var(--glass-blur))",
-        transition: "width 0.3s ease",
+        top: "calc(var(--system-bar-height) + 12px)",
+        bottom: "20px",
+        width: collapsed ? SIDEBAR_COLLAPSED_WIDTH : SIDEBAR_WIDTH,
+        backgroundImage: "var(--panel-highlight)",
+        backgroundColor: "rgb(var(--elevated-rgb) / var(--sidebar-surface-alpha))",
+        transition: "width var(--motion-base) var(--easing-default)",
       }}
     >
-      {/* Toggle button */}
-      <button
-        onClick={toggleSidebar}
-        className="flex items-center justify-center h-8 mx-2 mt-2 rounded-lg hover:bg-[var(--accent-muted)]"
-      >
-        {collapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
-      </button>
+      <div className="flex items-center justify-between px-2 pb-2 pt-2">
+        {!collapsed && (
+          <div className="px-2">
+            <div
+              className="text-[11px] uppercase tracking-[0.18em]"
+              style={{ color: "var(--text-tertiary)" }}
+            >
+              Navigation
+            </div>
+            <div className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>
+              EverOS
+            </div>
+          </div>
+        )}
+        <button
+          onClick={toggleSidebar}
+          className="ui-control ui-icon-button rounded-[var(--radius-md)]"
+          aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+        >
+          {collapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
+        </button>
+      </div>
 
-      {/* Menu sections */}
+      <div className="ui-divider mx-3 h-px" />
+
       <div className="flex-1 overflow-y-auto scrollbar-thin px-2 py-3">
-        {/* Media section */}
-        <div className="mb-4">
+        <div className="mb-5">
           {!collapsed && (
             <p
               className="text-xs font-semibold uppercase tracking-wider px-2 mb-2"
@@ -84,11 +99,10 @@ export function Sidebar() {
                 key={item.appId}
                 onClick={() => item.appId && openApp(item.appId)}
                 className={cn(
-                  "flex items-center gap-3 w-full px-2 py-2 rounded-lg text-sm mb-0.5",
-                  "hover:bg-[var(--accent-muted)] transition-colors",
-                  isOpen && "bg-[var(--accent-muted)]"
+                  "ui-control mb-1 flex h-10 w-full justify-start gap-3 rounded-[var(--radius-md)] px-2 text-sm",
+                  isOpen && "ui-control-active"
                 )}
-                style={{ color: "var(--text-primary)" }}
+                style={{ color: isOpen ? "var(--text-primary)" : "var(--text-secondary)" }}
                 title={!collapsed ? undefined : t(item.labelKey)}
               >
                 <Icon size={18} />
@@ -124,11 +138,10 @@ export function Sidebar() {
                   }
                 }}
                 className={cn(
-                  "flex items-center gap-3 w-full px-2 py-2 rounded-lg text-sm mb-0.5",
-                  "hover:bg-[var(--accent-muted)] transition-colors",
-                  isOpen && "bg-[var(--accent-muted)]"
+                  "ui-control mb-1 flex h-10 w-full justify-start gap-3 rounded-[var(--radius-md)] px-2 text-sm",
+                  isOpen && "ui-control-active"
                 )}
-                style={{ color: "var(--text-primary)" }}
+                style={{ color: isOpen ? "var(--text-primary)" : "var(--text-secondary)" }}
                 title={!collapsed ? undefined : t(item.labelKey)}
               >
                 <Icon size={18} />

@@ -4,13 +4,13 @@ import type { AppInstance } from "@/types/app";
 import type { ViewMode, MusicItem } from "@/types/media";
 import { MOCK_MUSIC } from "@/mock/music";
 import { useTranslation } from "@/hooks/useTranslation";
-import { Search, Grid3X3, List, Heart, Play, Pause, SkipBack, SkipForward, Volume2 } from "lucide-react";
+import { Search, List, Heart, Play, Pause, SkipBack, SkipForward, Volume2 } from "lucide-react";
 
 interface MusicManagerProps {
   instance: AppInstance;
 }
 
-export function MusicManager({ instance: _instance }: MusicManagerProps) {
+export function MusicManager({}: MusicManagerProps) {
   const { t } = useTranslation();
   const [search, setSearch] = useState("");
   const [viewMode, setViewMode] = useState<ViewMode>("list");
@@ -45,8 +45,7 @@ export function MusicManager({ instance: _instance }: MusicManagerProps) {
 
   return (
     <div className="flex flex-col h-full">
-      {/* Top bar */}
-      <div className="flex items-center gap-2 p-2 border-b" style={{ borderColor: "var(--border-default)" }}>
+      <div className="flex items-center gap-3 border-b px-4 py-3" style={{ borderColor: "var(--divider-strong)" }}>
         <div className="relative flex-1 max-w-xs">
           <Search size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2" style={{ color: "var(--text-tertiary)" }} />
           <input
@@ -54,13 +53,12 @@ export function MusicManager({ instance: _instance }: MusicManagerProps) {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder={t("common.search")}
-            className="w-full pl-8 pr-3 py-1.5 text-sm rounded-lg outline-none"
-            style={{ backgroundColor: "var(--bg-input)", color: "var(--text-primary)" }}
+            className="ui-input w-full py-2 pl-9 pr-3 text-sm outline-none"
           />
         </div>
         <button
-          className={`flex items-center gap-1 px-2 py-1.5 rounded text-sm ${
-            showFavorites ? "bg-[var(--accent-muted)]" : "hover:bg-[var(--accent-muted)]"
+          className={`ui-control h-10 rounded-[var(--radius-md)] px-3 text-sm ${
+            showFavorites ? "ui-control-active" : ""
           }`}
           style={{ color: "var(--text-primary)" }}
           onClick={() => setShowFavorites(!showFavorites)}
@@ -70,7 +68,7 @@ export function MusicManager({ instance: _instance }: MusicManagerProps) {
         </button>
         <div className="flex items-center gap-1 ml-auto">
           <button
-            className={`p-1.5 rounded-md ${viewMode === "list" ? "bg-[var(--accent-muted)]" : "hover:bg-[var(--accent-muted)]"}`}
+            className={`ui-control ui-icon-button rounded-[var(--radius-md)] ${viewMode === "list" ? "ui-control-active" : ""}`}
             onClick={() => setViewMode("list")}
           >
             <List size={14} />
@@ -89,15 +87,15 @@ export function MusicManager({ instance: _instance }: MusicManagerProps) {
             {filtered.map((track) => (
               <div
                 key={track.id}
-                className={`flex items-center gap-3 px-3 py-2 cursor-pointer hover:bg-[var(--accent-muted)] transition-colors ${
-                  nowPlaying?.id === track.id ? "bg-[var(--accent-muted)]" : ""
+                className={`mx-2 my-1 flex items-center gap-3 rounded-[var(--radius-lg)] px-3 py-2.5 cursor-pointer ${
+                  nowPlaying?.id === track.id ? "bg-[var(--accent-muted)]" : "hover:bg-[var(--bg-soft)]"
                 }`}
-                style={{ borderBottom: "1px solid var(--border-subtle)" }}
+                style={{ border: "1px solid transparent" }}
                 onDoubleClick={() => handlePlay(track)}
               >
                 <button
                   onClick={() => handlePlay(track)}
-                  className="flex items-center justify-center w-8 h-8 rounded-full hover:bg-[var(--bg-input)]"
+                  className="ui-control h-8 w-8 rounded-full p-0"
                 >
                   {nowPlaying?.id === track.id && isPlaying ? (
                     <Pause size={14} fill="var(--accent)" style={{ color: "var(--accent)" }} />
@@ -136,13 +134,13 @@ export function MusicManager({ instance: _instance }: MusicManagerProps) {
       {/* Now Playing Bar */}
       {nowPlaying && (
         <div
-          className="flex items-center gap-3 px-3 py-2 border-t"
-          style={{ borderColor: "var(--border-default)", backgroundColor: "var(--bg-elevated)" }}
+          className="ui-surface mx-3 mb-3 mt-2 flex items-center gap-3 rounded-[var(--radius-xl)] px-4 py-3"
+          style={{ boxShadow: "var(--shadow-xs)" }}
         >
           <img
             src={nowPlaying.coverArt || nowPlaying.thumbnail}
             alt={nowPlaying.album}
-            className="w-12 h-12 rounded object-cover"
+            className="h-12 w-12 rounded-[var(--radius-md)] object-cover"
           />
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium truncate" style={{ color: "var(--text-primary)" }}>
@@ -153,12 +151,16 @@ export function MusicManager({ instance: _instance }: MusicManagerProps) {
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <button className="p-1.5 rounded-full hover:bg-[var(--accent-muted)]">
+            <button className="ui-control h-9 w-9 rounded-full p-0">
               <SkipBack size={16} style={{ color: "var(--text-secondary)" }} />
             </button>
             <button
               onClick={() => setIsPlaying(!isPlaying)}
-              className="p-2 rounded-full bg-[var(--fill-solid)] hover:bg-[var(--fill-solid-hover)]"
+              className="rounded-full p-2"
+              style={{
+                backgroundColor: "var(--fill-solid)",
+                color: "var(--fill-solid-contrast)",
+              }}
             >
               {isPlaying ? (
                 <Pause size={16} fill="var(--fill-solid-contrast)" color="var(--fill-solid-contrast)" />
@@ -166,7 +168,7 @@ export function MusicManager({ instance: _instance }: MusicManagerProps) {
                 <Play size={16} fill="var(--fill-solid-contrast)" color="var(--fill-solid-contrast)" />
               )}
             </button>
-            <button className="p-1.5 rounded-full hover:bg-[var(--accent-muted)]">
+            <button className="ui-control h-9 w-9 rounded-full p-0">
               <SkipForward size={16} style={{ color: "var(--text-secondary)" }} />
             </button>
           </div>

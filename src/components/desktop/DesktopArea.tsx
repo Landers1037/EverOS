@@ -14,15 +14,31 @@ export function DesktopArea() {
     : { backgroundImage: `url(${current?.src})` };
 
   return (
-    <div
-      className="fixed inset-0 z-0"
-      style={{
-        ...style,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        backgroundRepeat: "no-repeat",
-        transition: "background-image 0.7s ease-in-out",
-      }}
-    />
+    <div className="fixed inset-0 z-0 overflow-hidden">
+      <div
+        className="absolute inset-0"
+        style={{
+          ...style,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+          filter: "saturate(0.9) contrast(0.95)",
+          transform: "scale(1.02)",
+          transition: "background-image 0.7s ease-in-out",
+        }}
+      />
+      <div
+        className="absolute inset-0"
+        style={{
+          background: "var(--desktop-overlay)",
+        }}
+      />
+      <div
+        className="absolute inset-0"
+        style={{
+          backgroundColor: "var(--desktop-scrim)",
+        }}
+      />
+    </div>
   );
 }

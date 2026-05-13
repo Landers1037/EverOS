@@ -5,6 +5,7 @@ export type SettingsCategory = "appearance" | "system" | "notifications" | "stor
 export type StorageSubCategory = "file" | "temp" | "database";
 export type FilePermission = "read" | "readwrite";
 export type DatabaseEngine = "sqlite" | "bbolt" | "mysql";
+type UIStyle = "gradient" | "minimal";
 
 export interface FileStoragePath {
   id: string;
@@ -84,6 +85,10 @@ interface SettingsState {
   // Appearance
   zoom: ZoomLevel;
   accentColor: string;
+  uiStyle: UIStyle;
+  globalOpacity: number;
+  sidebarOpacity: number | null;
+  dockOpacity: number | null;
   dock: DockConfig;
 
   // System
@@ -102,6 +107,12 @@ interface SettingsState {
   setZoom: (zoom: ZoomLevel) => void;
   setDockStyle: (style: DockStyle) => void;
   setAccentColor: (color: string) => void;
+  setUiStyle: (style: UIStyle) => void;
+  setGlobalOpacity: (opacity: number) => void;
+  setSidebarOpacity: (opacity: number) => void;
+  resetSidebarOpacity: () => void;
+  setDockOpacity: (opacity: number) => void;
+  resetDockOpacity: () => void;
   updateSystem: (config: Partial<SystemConfig>) => void;
   updateNotifications: (config: Partial<NotificationConfig>) => void;
   updateStorage: (config: Partial<StorageConfig>) => void;
@@ -119,6 +130,10 @@ const NOTIF_STORAGE_KEY = "everos-settings-notifications";
 const STORAGE_KEY = "everos-settings-storage";
 const ZOOM_STORAGE_KEY = "everos-settings-zoom";
 const ACCENT_STORAGE_KEY = "everos-settings-accent";
+const UI_STYLE_STORAGE_KEY = "everos-settings-ui-style";
+const GLOBAL_OPACITY_STORAGE_KEY = "everos-settings-global-opacity";
+const SIDEBAR_OPACITY_STORAGE_KEY = "everos-settings-sidebar-opacity";
+const DOCK_OPACITY_STORAGE_KEY = "everos-settings-dock-opacity";
 const DOCK_STORAGE_KEY = "everos-settings-dock";
 
 function getInitialSystem(): SystemConfig {
@@ -163,6 +178,47 @@ function getInitialDock(): DockConfig {
   return { style: "standard" };
 }
 
+function getInitialUiStyle(): UIStyle {
+  if (typeof window === "undefined") return "gradient";
+  const stored = localStorage.getItem(UI_STYLE_STORAGE_KEY);
+  return stored === "minimal" ? "minimal" : "gradient";
+}
+
+function getResolvedTheme(): "light" | "dark" {
+  if (typeof window === "undefined") return "dark";
+  const stored = localStorage.getItem("everos-theme");
+  if (stored === "light" || stored === "dark") return stored;
+  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+}
+
+function getDefaultSurfaceOpacity(): number {
+  return getResolvedTheme() === "light" ? 82 : 86;
+}
+
+function clampOpacity(opacity: number): number {
+  return Math.min(100, Math.max(35, Math.round(opacity)));
+}
+
+function getInitialGlobalOpacity(): number {
+  if (typeof window === "undefined") return 86;
+  const stored = localStorage.getItem(GLOBAL_OPACITY_STORAGE_KEY);
+  if (stored) {
+    const value = Number.parseInt(stored, 10);
+    if (!Number.isNaN(value)) return clampOpacity(value);
+  }
+  return getDefaultSurfaceOpacity();
+}
+
+function getInitialSurfaceOverride(storageKey: string): number | null {
+  if (typeof window === "undefined") return null;
+  const stored = localStorage.getItem(storageKey);
+  if (stored) {
+    const value = Number.parseInt(stored, 10);
+    if (!Number.isNaN(value)) return clampOpacity(value);
+  }
+  return null;
+}
+
 function getInitialStorage(): StorageConfig {
   if (typeof window === "undefined") return getDefaultStorage();
   const stored = localStorage.getItem(STORAGE_KEY);
@@ -200,10 +256,35 @@ function applyAccentColor(color: string) {
   root.style.setProperty("--accent-muted", muted);
 }
 
+function applyUiStyle(style: UIStyle) {
+  if (typeof document === "undefined") return;
+  document.documentElement.classList.toggle("ui-minimal", style === "minimal");
+}
+
+function applySurfaceOpacity(variableName: string, opacity: number) {
+  if (typeof document === "undefined") return;
+  document.documentElement.style.setProperty(variableName, (clampOpacity(opacity) / 100).toFixed(2));
+}
+
+function applySurfaceOpacitySettings(
+  globalOpacity: number,
+  sidebarOpacity: number | null,
+  dockOpacity: number | null,
+) {
+  applySurfaceOpacity("--global-surface-alpha", globalOpacity);
+  applySurfaceOpacity("--sidebar-surface-alpha", sidebarOpacity ?? globalOpacity);
+  applySurfaceOpacity("--dock-surface-alpha", dockOpacity ?? globalOpacity);
+}
+
 export const useSettingsStore = create<SettingsState>((set, get) => {
-  // Apply saved accent on init
   const savedAccent = getInitialAccent();
+  const savedUiStyle = getInitialUiStyle();
+  const savedGlobalOpacity = getInitialGlobalOpacity();
+  const savedSidebarOpacity = getInitialSurfaceOverride(SIDEBAR_OPACITY_STORAGE_KEY);
+  const savedDockOpacity = getInitialSurfaceOverride(DOCK_OPACITY_STORAGE_KEY);
   applyAccentColor(savedAccent);
+  applyUiStyle(savedUiStyle);
+  applySurfaceOpacitySettings(savedGlobalOpacity, savedSidebarOpacity, savedDockOpacity);
 
   return {
     isOpen: false,
@@ -211,6 +292,10 @@ export const useSettingsStore = create<SettingsState>((set, get) => {
 
     zoom: getInitialZoom(),
     accentColor: savedAccent,
+    uiStyle: savedUiStyle,
+    globalOpacity: savedGlobalOpacity,
+    sidebarOpacity: savedSidebarOpacity,
+    dockOpacity: savedDockOpacity,
     dock: getInitialDock(),
 
     system: getInitialSystem(),
@@ -237,6 +322,45 @@ export const useSettingsStore = create<SettingsState>((set, get) => {
       localStorage.setItem(ACCENT_STORAGE_KEY, accentColor);
       applyAccentColor(accentColor);
       set({ accentColor });
+    },
+
+    setUiStyle: (uiStyle) => {
+      localStorage.setItem(UI_STYLE_STORAGE_KEY, uiStyle);
+      applyUiStyle(uiStyle);
+      set({ uiStyle });
+    },
+
+    setGlobalOpacity: (globalOpacity) => {
+      const next = clampOpacity(globalOpacity);
+      localStorage.setItem(GLOBAL_OPACITY_STORAGE_KEY, String(next));
+      applySurfaceOpacitySettings(next, get().sidebarOpacity, get().dockOpacity);
+      set({ globalOpacity: next });
+    },
+
+    setSidebarOpacity: (sidebarOpacity) => {
+      const next = clampOpacity(sidebarOpacity);
+      localStorage.setItem(SIDEBAR_OPACITY_STORAGE_KEY, String(next));
+      applySurfaceOpacitySettings(get().globalOpacity, next, get().dockOpacity);
+      set({ sidebarOpacity: next });
+    },
+
+    resetSidebarOpacity: () => {
+      localStorage.removeItem(SIDEBAR_OPACITY_STORAGE_KEY);
+      applySurfaceOpacitySettings(get().globalOpacity, null, get().dockOpacity);
+      set({ sidebarOpacity: null });
+    },
+
+    setDockOpacity: (dockOpacity) => {
+      const next = clampOpacity(dockOpacity);
+      localStorage.setItem(DOCK_OPACITY_STORAGE_KEY, String(next));
+      applySurfaceOpacitySettings(get().globalOpacity, get().sidebarOpacity, next);
+      set({ dockOpacity: next });
+    },
+
+    resetDockOpacity: () => {
+      localStorage.removeItem(DOCK_OPACITY_STORAGE_KEY);
+      applySurfaceOpacitySettings(get().globalOpacity, get().sidebarOpacity, null);
+      set({ dockOpacity: null });
     },
 
     updateSystem: (config) => {

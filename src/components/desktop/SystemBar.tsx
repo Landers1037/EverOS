@@ -33,126 +33,135 @@ export function SystemBar() {
     minute: "2-digit",
   });
 
+  const iconButtonClass =
+    "ui-control ui-icon-button rounded-[var(--radius-md)]";
+
   return (
     <header
-      className="fixed top-0 left-0 right-0 z-40 flex items-center h-10 px-3 border-b"
-      style={{
-        backgroundColor: "var(--bg-elevated)",
-        borderColor: "var(--border-subtle)",
-        backdropFilter: "blur(var(--glass-blur))",
-        WebkitBackdropFilter: "blur(var(--glass-blur))",
-      }}
+      className="fixed left-0 right-0 top-0 z-40 px-4 pt-3"
+      style={{ height: "var(--system-bar-height)" }}
     >
-      {/* Left section */}
-      <div className="flex items-center gap-2 flex-1">
-        <button
-          onClick={toggleSidebar}
-          className="flex items-center justify-center w-7 h-7 rounded-lg hover:bg-[var(--accent-muted)]"
-          aria-label={t("desktop.sidebar")}
-        >
-          <Menu size={16} />
-        </button>
-        <span
-          className="text-sm font-medium ml-1"
-          style={{ color: "var(--text-secondary)" }}
-        >
-          {activeInstance ? t(activeInstance.title) : "EverOS"}
-        </span>
-      </div>
-
-      {/* Center section */}
-      <div className="flex-1 flex justify-center" />
-
-      {/* Right section */}
-      <div className="flex items-center gap-2">
-        <Wifi size={14} style={{ color: "var(--text-tertiary)" }} />
-        <button
-          onClick={toggleTheme}
-          className="flex items-center justify-center w-7 h-7 rounded-lg hover:bg-[var(--accent-muted)]"
-          aria-label={t("settings.theme")}
-        >
-          {resolved === "dark" ? (
-            <Sun size={14} />
-          ) : (
-            <Moon size={14} />
-          )}
-        </button>
-        <button
-          onClick={() => {
-            setShowNotifications(!showNotifications);
-            hideContextMenu();
-          }}
-          className="relative flex items-center justify-center w-7 h-7 rounded-lg hover:bg-[var(--accent-muted)]"
-        >
-          <Bell size={14} />
-          <span className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-red-500" />
-        </button>
-        {showNotifications && (
-          <NotificationCenter onClose={() => setShowNotifications(false)} />
-        )}
-        <div className="relative">
+      <div
+        className="ui-surface mx-auto flex h-11 max-w-[calc(100vw-32px)] items-center justify-between rounded-[18px] px-3"
+        style={{
+          backgroundImage: "var(--panel-highlight)",
+        }}
+      >
+        <div className="flex min-w-0 items-center gap-2">
           <button
-            onClick={() => {
-              setShowPowerMenu(!showPowerMenu);
-              hideContextMenu();
-            }}
-            className="flex items-center justify-center w-7 h-7 rounded-lg hover:bg-[var(--accent-muted)]"
-            aria-label="Power"
+            onClick={toggleSidebar}
+            className={iconButtonClass}
+            aria-label={t("desktop.sidebar")}
           >
-            <Power size={14} />
+            <Menu size={16} />
           </button>
-          {showPowerMenu && (
-            <>
-              <div
-                className="fixed inset-0 z-40"
-                onClick={() => setShowPowerMenu(false)}
-              />
-              <div
-                className="absolute right-0 top-full mt-1 z-50 min-w-[180px] rounded-xl overflow-hidden"
-                style={{
-                  backgroundColor: "var(--bg-elevated)",
-                  border: "1px solid var(--border-subtle)",
-                  backdropFilter: "blur(var(--glass-blur))",
-                  WebkitBackdropFilter: "blur(var(--glass-blur))",
-                }}
-              >
-                <button
-                  onClick={() => setShowPowerMenu(false)}
-                  className="flex items-center gap-3 w-full px-4 py-2.5 text-sm transition-colors"
-                  style={{ color: "var(--text-secondary)" }}
-                  onMouseEnter={(e) =>
-                    (e.currentTarget.style.backgroundColor =
-                      "var(--bg-panel-hover)")
-                  }
-                  onMouseLeave={(e) =>
-                    (e.currentTarget.style.backgroundColor = "transparent")
-                  }
-                >
-                  <RotateCw size={16} />
-                  {t("desktop.restart")}
-                </button>
-                <button
-                  onClick={() => setShowPowerMenu(false)}
-                  className="flex items-center gap-3 w-full px-4 py-2.5 text-sm transition-colors"
-                  style={{ color: "var(--text-secondary)" }}
-                  onMouseEnter={(e) =>
-                    (e.currentTarget.style.backgroundColor =
-                      "var(--bg-panel-hover)")
-                  }
-                  onMouseLeave={(e) =>
-                    (e.currentTarget.style.backgroundColor = "transparent")
-                  }
-                >
-                  <PowerOff size={16} />
-                  {t("desktop.shutdown")}
-                </button>
-              </div>
-            </>
-          )}
+          <div className="min-w-0">
+            <div
+              className="text-[11px] uppercase tracking-[0.18em]"
+              style={{ color: "var(--text-tertiary)" }}
+            >
+              Workspace
+            </div>
+            <div
+              className="truncate text-sm font-semibold"
+              style={{ color: "var(--text-primary)" }}
+            >
+              {activeInstance ? t(activeInstance.title) : "EverOS"}
+            </div>
+          </div>
         </div>
-        <div className="flex items-center gap-1.5 text-xs font-medium ml-1">
-          <Monitor size={12} style={{ color: "var(--text-tertiary)" }} />
-          <span style={{ color: "var(--text-primary)" }}>{timeStr}</span>
+
+        <div
+          className="hidden items-center gap-2 rounded-full px-3 py-1.5 md:flex"
+          style={{
+            backgroundColor: "var(--bg-soft)",
+            border: "1px solid var(--line-soft)",
+          }}
+        >
+          <Wifi size={14} style={{ color: "var(--text-tertiary)" }} />
+          <span className="text-xs font-medium" style={{ color: "var(--text-secondary)" }}>
+            Online
+          </span>
+        </div>
+
+        <div className="flex items-center gap-1">
+          <button
+            onClick={toggleTheme}
+            className={iconButtonClass}
+            aria-label={t("settings.theme")}
+          >
+            {resolved === "dark" ? <Sun size={14} /> : <Moon size={14} />}
+          </button>
+          <div className="relative">
+            <button
+              onClick={() => {
+                setShowNotifications(!showNotifications);
+                hideContextMenu();
+              }}
+              className={`${iconButtonClass} relative`}
+              aria-label={t("desktop.notifications")}
+            >
+              <Bell size={14} />
+              <span
+                className="absolute right-2 top-2 h-1.5 w-1.5 rounded-full"
+                style={{ backgroundColor: "var(--accent)" }}
+              />
+            </button>
+            {showNotifications && (
+              <NotificationCenter onClose={() => setShowNotifications(false)} />
+            )}
+          </div>
+          <div className="relative">
+            <button
+              onClick={() => {
+                setShowPowerMenu(!showPowerMenu);
+                hideContextMenu();
+              }}
+              className={iconButtonClass}
+              aria-label="Power"
+            >
+              <Power size={14} />
+            </button>
+            {showPowerMenu && (
+              <>
+                <div
+                  className="fixed inset-0 z-40"
+                  onClick={() => setShowPowerMenu(false)}
+                />
+                <div
+                  className="ui-surface absolute right-0 top-full z-50 mt-2 min-w-[196px] overflow-hidden rounded-[var(--radius-lg)] p-1"
+                  style={{ boxShadow: "var(--shadow-md)" }}
+                >
+                  <button
+                    onClick={() => setShowPowerMenu(false)}
+                    className="ui-control flex h-11 w-full justify-start rounded-[var(--radius-md)] px-3 text-sm"
+                  >
+                    <RotateCw size={16} />
+                    {t("desktop.restart")}
+                  </button>
+                  <button
+                    onClick={() => setShowPowerMenu(false)}
+                    className="ui-control flex h-11 w-full justify-start rounded-[var(--radius-md)] px-3 text-sm"
+                  >
+                    <PowerOff size={16} />
+                    {t("desktop.shutdown")}
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+          <div
+            className="ml-2 hidden items-center gap-2 rounded-full px-3 py-1.5 sm:flex"
+            style={{
+              backgroundColor: "var(--bg-soft)",
+              border: "1px solid var(--line-soft)",
+            }}
+          >
+            <Monitor size={12} style={{ color: "var(--text-tertiary)" }} />
+            <span className="text-xs font-semibold" style={{ color: "var(--text-primary)" }}>
+              {timeStr}
+            </span>
+          </div>
         </div>
       </div>
     </header>

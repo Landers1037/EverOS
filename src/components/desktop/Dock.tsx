@@ -1,9 +1,11 @@
 "use client";
 import { useAppStore } from "@/stores/useAppStore";
 import { useSettingsStore } from "@/stores/useSettingsStore";
+import { useDesktopStore } from "@/stores/useDesktopStore";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { cn } from "@/utils/cn";
+import { SIDEBAR_COLLAPSED_WIDTH, SIDEBAR_WIDTH } from "@/utils/constants";
 import { Grid3X3, Clapperboard, Music, Image, Settings, Folder } from "lucide-react";
 
 const iconMap: Record<string, React.ComponentType<{ size?: number }>> = {
@@ -17,9 +19,12 @@ const iconMap: Record<string, React.ComponentType<{ size?: number }>> = {
 export function Dock() {
   const { appDefinitions, instances, openApp, focusApp, minimizeApp, restoreApp } = useAppStore();
   const { dock } = useSettingsStore();
+  const sidebarState = useDesktopStore((state) => state.sidebarState);
   const { t } = useTranslation();
   const isMobile = useMediaQuery("(max-width: 768px)");
   const isMini = dock.style === "mini";
+  const isSidebarCollapsed = sidebarState === "collapsed" || isMobile;
+  const sidebarOffset = isMobile ? 0 : (isSidebarCollapsed ? SIDEBAR_COLLAPSED_WIDTH : SIDEBAR_WIDTH) + 28;
 
   const pinnedApps = appDefinitions;
 
@@ -53,7 +58,7 @@ export function Dock() {
   const buttonSize = isMobile ? "w-10 h-10" : isMini ? "w-11 h-11" : "w-12 h-12";
 
   const dockButtons = (
-    <div className="flex items-center gap-1">
+    <div className="flex items-center gap-1.5">
       {pinnedApps.map((app) => {
         const Icon = iconMap[app.icon] || Grid3X3;
         const instance = getInstanceForApp(app.id);
@@ -66,26 +71,24 @@ export function Dock() {
             key={app.id}
             onClick={() => handleAppClick(app.id)}
             className={cn(
-              "relative flex items-center justify-center rounded-xl transition-all duration-200 hover:scale-110",
+              "relative flex items-center justify-center rounded-[var(--radius-md)] transition-all duration-200 hover:-translate-y-0.5",
               buttonSize,
-              "hover:bg-[var(--accent-muted)]"
+              "ui-control"
             )}
             title={t(app.nameKey)}
+            style={{
+              backgroundColor: isFocused ? "var(--accent-muted)" : "transparent",
+              borderColor: isFocused ? "var(--border-strong)" : "transparent",
+              color: isMinimized ? "var(--text-tertiary)" : "var(--text-primary)",
+              opacity: isMinimized ? 0.62 : 1,
+            }}
           >
-            <div
-              style={{
-                color: isMinimized
-                  ? "var(--text-tertiary)"
-                  : "var(--text-primary)",
-                opacity: isMinimized ? 0.5 : 1,
-              }}
-            >
+            <div>
               <Icon size={iconSize} />
             </div>
-            {/* Active indicator */}
             {isActive && (
               <span
-                className="absolute bottom-0.5 w-1 h-1 rounded-full"
+                className="absolute bottom-1 h-1 w-5 rounded-full"
                 style={{
                   backgroundColor: "var(--accent)",
                   opacity: isFocused ? 1 : 0.4,
@@ -101,55 +104,39 @@ export function Dock() {
   if (isMini) {
     return (
       <div
-        className="fixed left-0 right-0 z-40 pointer-events-none flex justify-center"
-        style={{ bottom: 12 }}
+        className="fixed left-0 right-0 z-40 flex justify-center pointer-events-none"
+        style={{ bottom: 18 }}
       >
         <div
-          className="pointer-events-auto flex items-center"
+          className="ui-surface pointer-events-auto relative flex items-center rounded-[var(--radius-lg)] px-2 py-1.5"
           style={{
-            padding: "6px 6px",
-            backgroundColor: "rgba(17, 19, 23, 0.85)",
-            backdropFilter: "blur(24px)",
-            WebkitBackdropFilter: "blur(24px)",
-            border: "1px solid rgba(255, 255, 255, 0.12)",
-            borderRadius: "var(--radius-lg)",
-            boxShadow: "0 8px 32px rgba(0,0,0,0.4)",
-            position: "relative",
-            overflow: "hidden",
+            boxShadow: "var(--shadow-md)",
+            backgroundImage: "var(--panel-highlight)",
+            backgroundColor: "rgb(var(--elevated-rgb) / var(--dock-surface-alpha))",
           }}
         >
-          {/* Inner highlight gradient at top 40% */}
-          <div
-            style={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              right: 0,
-              height: "40%",
-              background: "linear-gradient(180deg, rgba(255,255,255,0.10) 0%, transparent 100%)",
-              pointerEvents: "none",
-              borderRadius: "var(--radius-lg)",
-            }}
-          />
           {dockButtons}
         </div>
       </div>
     );
   }
 
-  // Standard style
   return (
     <div
-      className="fixed bottom-0 left-0 right-0 z-40 flex items-center justify-center"
+      className="fixed bottom-0 right-0 z-40 pointer-events-none"
       style={{
+        left: isMobile ? 0 : sidebarOffset,
         height: "var(--dock-height)",
-        backgroundColor: "var(--bg-elevated)",
-        borderTop: "1px solid var(--border-subtle)",
-        backdropFilter: "blur(var(--glass-blur))",
-        WebkitBackdropFilter: "blur(var(--glass-blur))",
       }}
     >
-      <div className="flex items-center gap-1 px-3">
+      <div
+        className="ui-surface pointer-events-auto flex h-full w-full items-center justify-center gap-1 overflow-hidden border-b-0 rounded-t-[var(--radius-xl)] px-3 py-1.5"
+        style={{
+          backgroundImage: "var(--panel-highlight)",
+          boxShadow: "var(--shadow-lg)",
+          backgroundColor: "rgb(var(--elevated-rgb) / var(--dock-surface-alpha))",
+        }}
+      >
         {dockButtons}
       </div>
     </div>

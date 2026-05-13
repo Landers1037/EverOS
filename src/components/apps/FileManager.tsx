@@ -6,13 +6,13 @@ import { MOCK_MUSIC } from "@/mock/music";
 import { MOCK_IMAGES } from "@/mock/images";
 import { MEDIA_FOLDERS } from "@/mock/folders";
 import { useTranslation } from "@/hooks/useTranslation";
-import { Search, Grid3X3, List, Folder, File, Clapperboard, Music, Image } from "lucide-react";
+import { Search, Grid3X3, List, Folder, File, Clapperboard, Music, ImageIcon } from "lucide-react";
 
 interface FileManagerProps {
   instance: AppInstance;
 }
 
-export function FileManager({ instance: _instance }: FileManagerProps) {
+export function FileManager({}: FileManagerProps) {
   const { t } = useTranslation();
   const [search, setSearch] = useState("");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
@@ -40,7 +40,7 @@ export function FileManager({ instance: _instance }: FileManagerProps) {
       case "audio":
         return <Music size={14} />;
       case "image":
-        return <Image size={14} />;
+        return <ImageIcon size={14} />;
       default:
         return <File size={14} />;
     }
@@ -48,14 +48,16 @@ export function FileManager({ instance: _instance }: FileManagerProps) {
 
   return (
     <div className="flex h-full">
-      {/* Folder sidebar */}
       <div
-        className="w-48 flex-shrink-0 border-r overflow-y-auto scrollbar-thin p-2"
-        style={{ borderColor: "var(--border-default)" }}
+        className="w-52 flex-shrink-0 overflow-y-auto scrollbar-thin p-3"
+        style={{
+          borderRight: "1px solid var(--divider-strong)",
+          backgroundColor: "var(--bg-soft)",
+        }}
       >
         <button
-          className={`flex items-center gap-2 w-full px-2 py-1.5 rounded text-sm mb-0.5 ${
-            !selectedFolder ? "bg-[var(--accent-muted)]" : "hover:bg-[var(--accent-muted)]"
+          className={`ui-control mb-1 flex h-10 w-full justify-start gap-2 rounded-[var(--radius-md)] px-3 text-sm ${
+            !selectedFolder ? "ui-control-active" : ""
           }`}
           style={{ color: "var(--text-primary)" }}
           onClick={() => setSelectedFolder(null)}
@@ -63,15 +65,15 @@ export function FileManager({ instance: _instance }: FileManagerProps) {
           <Folder size={14} />
           {t("media.allFiles")}
         </button>
-        <div className="my-2 mx-2 h-px" style={{ backgroundColor: "var(--border-default)" }} />
-        <p className="text-xs font-medium px-2 mb-1" style={{ color: "var(--text-tertiary)" }}>
+        <div className="ui-divider my-3 mx-2 h-px" />
+        <p className="mb-2 px-2 text-[11px] font-semibold uppercase tracking-[0.16em]" style={{ color: "var(--text-tertiary)" }}>
           {t("media.folders")}
         </p>
         {MEDIA_FOLDERS.filter((f) => f.parentId === "root").map((folder) => (
           <button
             key={folder.id}
-            className={`flex items-center gap-2 w-full px-2 py-1.5 rounded text-sm mb-0.5 ${
-              selectedFolder === folder.id ? "bg-[var(--accent-muted)]" : "hover:bg-[var(--accent-muted)]"
+            className={`ui-control mb-1 flex h-10 w-full justify-start gap-2 rounded-[var(--radius-md)] px-3 text-sm ${
+              selectedFolder === folder.id ? "ui-control-active" : ""
             }`}
             style={{ color: "var(--text-primary)" }}
             onClick={() => setSelectedFolder(folder.id)}
@@ -85,9 +87,8 @@ export function FileManager({ instance: _instance }: FileManagerProps) {
         ))}
       </div>
 
-      {/* Main content */}
       <div className="flex-1 flex flex-col">
-        <div className="flex items-center gap-2 p-2 border-b" style={{ borderColor: "var(--border-default)" }}>
+        <div className="flex items-center gap-3 border-b px-4 py-3" style={{ borderColor: "var(--divider-strong)" }}>
           <div className="relative flex-1 max-w-xs">
             <Search size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2" style={{ color: "var(--text-tertiary)" }} />
             <input
@@ -95,19 +96,18 @@ export function FileManager({ instance: _instance }: FileManagerProps) {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder={t("common.search")}
-              className="w-full pl-8 pr-3 py-1.5 text-sm rounded-lg outline-none"
-              style={{ backgroundColor: "var(--bg-input)", color: "var(--text-primary)" }}
+              className="ui-input w-full py-2 pl-9 pr-3 text-sm outline-none"
             />
           </div>
           <div className="flex items-center gap-1 ml-auto">
             <button
-              className={`p-1.5 rounded-md ${viewMode === "grid" ? "bg-[var(--accent-muted)]" : "hover:bg-[var(--accent-muted)]"}`}
+              className={`ui-control ui-icon-button rounded-[var(--radius-md)] ${viewMode === "grid" ? "ui-control-active" : ""}`}
               onClick={() => setViewMode("grid")}
             >
               <Grid3X3 size={14} />
             </button>
             <button
-              className={`p-1.5 rounded-md ${viewMode === "list" ? "bg-[var(--accent-muted)]" : "hover:bg-[var(--accent-muted)]"}`}
+              className={`ui-control ui-icon-button rounded-[var(--radius-md)] ${viewMode === "list" ? "ui-control-active" : ""}`}
               onClick={() => setViewMode("list")}
             >
               <List size={14} />
@@ -115,18 +115,17 @@ export function FileManager({ instance: _instance }: FileManagerProps) {
           </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto scrollbar-thin p-3">
+        <div className="flex-1 overflow-y-auto scrollbar-thin p-4">
           {allFiles.length === 0 ? (
             <div className="flex items-center justify-center h-full">
               <p style={{ color: "var(--text-tertiary)" }}>{t("media.noMedia")}</p>
             </div>
           ) : viewMode === "grid" ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3">
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
               {allFiles.map((item) => (
                 <div
                   key={item.id}
-                  className="rounded-lg overflow-hidden border hover:shadow-md transition-shadow cursor-pointer"
-                  style={{ borderColor: "var(--border-default)", backgroundColor: "var(--bg-elevated)" }}
+                  className="ui-card cursor-pointer overflow-hidden rounded-[var(--radius-lg)]"
                 >
                   <div className="relative aspect-video bg-[var(--bg-input)] flex items-center justify-center">
                     {"thumbnail" in item && item.thumbnail ? (
@@ -149,7 +148,7 @@ export function FileManager({ instance: _instance }: FileManagerProps) {
           ) : (
             <table className="w-full text-sm">
               <thead>
-                <tr style={{ color: "var(--text-tertiary)", borderBottom: "1px solid var(--border-default)" }}>
+                <tr style={{ color: "var(--text-tertiary)", borderBottom: "1px solid var(--divider-strong)" }}>
                   <th className="text-left font-medium py-2 px-2">{t("common.name")}</th>
                   <th className="text-left font-medium py-2 px-2">{t("common.type")}</th>
                   <th className="text-left font-medium py-2 px-2">{t("common.size")}</th>
@@ -158,7 +157,11 @@ export function FileManager({ instance: _instance }: FileManagerProps) {
               </thead>
               <tbody>
                 {allFiles.map((item) => (
-                  <tr key={item.id} className="hover:bg-[var(--accent-muted)] cursor-pointer" style={{ borderBottom: "1px solid var(--border-subtle)" }}>
+                  <tr
+                    key={item.id}
+                    className="cursor-pointer rounded-[var(--radius-md)] hover:bg-[var(--accent-muted)]"
+                    style={{ borderBottom: "1px solid var(--border-subtle)" }}
+                  >
                     <td className="py-2 px-2 flex items-center gap-2" style={{ color: "var(--text-primary)" }}>
                       {typeIcon(item.fileType)}
                       {item.title}

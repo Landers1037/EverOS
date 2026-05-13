@@ -4,7 +4,7 @@ import { useThemeStore } from "@/stores/useThemeStore";
 import { useDesktopStore } from "@/stores/useDesktopStore";
 import { useI18nStore } from "@/stores/useI18nStore";
 import { useTranslation } from "@/hooks/useTranslation";
-import type { SystemConfig, NotificationConfig, ZoomLevel, LogLevel, StorageConfig, FileStoragePath, FilePermission, DatabaseEngine } from "@/stores/useSettingsStore";
+import type { SystemConfig, NotificationConfig, LogLevel, StorageConfig, FileStoragePath, FilePermission, DatabaseEngine } from "@/stores/useSettingsStore";
 import type { DockStyle } from "@/types/desktop";
 import {
   Sun,
@@ -59,6 +59,16 @@ export function SettingsModal() {
     setZoom,
     accentColor,
     setAccentColor,
+    uiStyle,
+    setUiStyle,
+    globalOpacity,
+    setGlobalOpacity,
+    sidebarOpacity,
+    setSidebarOpacity,
+    resetSidebarOpacity,
+    dockOpacity,
+    setDockOpacity,
+    resetDockOpacity,
     dock,
     setDockStyle,
     system,
@@ -84,28 +94,28 @@ export function SettingsModal() {
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center"
-      style={{ backgroundColor: "rgba(0,0,0,0.55)" }}
+      style={{ backgroundColor: "var(--scrim)" }}
       onClick={(e) => {
         if (e.target === e.currentTarget) close();
       }}
     >
       <div
-        className="flex flex-col overflow-hidden rounded-xl border"
+        className="ui-surface flex flex-col overflow-hidden rounded-[var(--radius-2xl)]"
         style={{
-          width: 780,
-          height: 540,
-          backgroundColor: "var(--bg-elevated)",
-          borderColor: "var(--border-default)",
-          boxShadow: "0 24px 64px rgba(0,0,0,0.5)",
-          animation: "windowOpen 0.15s ease-out",
+          width: 860,
+          height: 580,
+          maxWidth: "calc(100vw - 48px)",
+          maxHeight: "calc(100vh - 56px)",
+          boxShadow: "var(--shadow-lg)",
+          animation: "windowOpen 0.18s var(--easing-default)",
+          backgroundImage: "var(--panel-highlight)",
         }}
       >
-        {/* Title bar */}
         <div
-          className="flex items-center justify-between flex-shrink-0 px-4"
+          className="flex items-center justify-between flex-shrink-0 px-5"
           style={{
-            height: 44,
-            borderBottom: "1px solid var(--border-subtle)",
+            height: "var(--window-title-height)",
+            borderBottom: "1px solid var(--divider-strong)",
           }}
         >
           <div className="flex items-center gap-2">
@@ -123,7 +133,7 @@ export function SettingsModal() {
             </button>
           </div>
           <span
-            className="text-sm font-medium absolute left-1/2 -translate-x-1/2"
+            className="absolute left-1/2 -translate-x-1/2 text-sm font-semibold"
             style={{ color: "var(--text-primary)" }}
           >
             {t("apps.settings")}
@@ -131,18 +141,20 @@ export function SettingsModal() {
           <div style={{ width: 20 }} />
         </div>
 
-        {/* Body: sidebar + content */}
         <div className="flex flex-1 overflow-hidden">
-          {/* Sidebar */}
           <div
-            className="flex-shrink-0 overflow-y-auto scrollbar-thin p-2"
-            style={{ width: 180, borderRight: "1px solid var(--border-subtle)" }}
+            className="flex-shrink-0 overflow-y-auto scrollbar-thin p-3"
+            style={{
+              width: 220,
+              borderRight: "1px solid var(--divider-strong)",
+              backgroundColor: "var(--bg-soft)",
+            }}
           >
             {CATEGORIES.map(({ id, key, icon: Icon }) => (
               <button
                 key={id}
                 onClick={() => setCategory(id)}
-                className="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm mb-0.5 transition-colors"
+                className="ui-control mb-1 flex h-11 w-full justify-start gap-3 rounded-[var(--radius-lg)] px-3 text-sm"
                 style={{
                   color:
                     activeCategory === id
@@ -150,6 +162,8 @@ export function SettingsModal() {
                       : "var(--text-secondary)",
                   backgroundColor:
                     activeCategory === id ? "var(--accent-muted)" : "transparent",
+                  borderColor:
+                    activeCategory === id ? "var(--border-strong)" : "transparent",
                 }}
               >
                 <Icon size={16} />
@@ -158,8 +172,7 @@ export function SettingsModal() {
             ))}
           </div>
 
-          {/* Content */}
-          <div className="flex-1 overflow-y-auto scrollbar-thin p-6">
+          <div className="flex-1 overflow-y-auto scrollbar-thin p-8">
             {activeCategory === "appearance" && (
               <AppearanceSettings
                 t={t}
@@ -171,6 +184,16 @@ export function SettingsModal() {
                 setDockStyle={setDockStyle}
                 accentColor={accentColor}
                 setAccentColor={setAccentColor}
+                uiStyle={uiStyle}
+                setUiStyle={setUiStyle}
+                globalOpacity={globalOpacity}
+                setGlobalOpacity={setGlobalOpacity}
+                sidebarOpacity={sidebarOpacity}
+                setSidebarOpacity={setSidebarOpacity}
+                resetSidebarOpacity={resetSidebarOpacity}
+                dockOpacity={dockOpacity}
+                setDockOpacity={setDockOpacity}
+                resetDockOpacity={resetDockOpacity}
                 wallpaper={wallpaper}
                 wallpapers={wallpapers}
                 setWallpaper={setWallpaper}
@@ -223,6 +246,16 @@ function AppearanceSettings({
   setDockStyle,
   accentColor,
   setAccentColor,
+  uiStyle,
+  setUiStyle,
+  globalOpacity,
+  setGlobalOpacity,
+  sidebarOpacity,
+  setSidebarOpacity,
+  resetSidebarOpacity,
+  dockOpacity,
+  setDockOpacity,
+  resetDockOpacity,
   wallpaper,
   wallpapers,
   setWallpaper,
@@ -236,6 +269,16 @@ function AppearanceSettings({
   setDockStyle: (s: DockStyle) => void;
   accentColor: string;
   setAccentColor: (c: string) => void;
+  uiStyle: "gradient" | "minimal";
+  setUiStyle: (style: "gradient" | "minimal") => void;
+  globalOpacity: number;
+  setGlobalOpacity: (opacity: number) => void;
+  sidebarOpacity: number | null;
+  setSidebarOpacity: (opacity: number) => void;
+  resetSidebarOpacity: () => void;
+  dockOpacity: number | null;
+  setDockOpacity: (opacity: number) => void;
+  resetDockOpacity: () => void;
   wallpaper: string;
   wallpapers: { id: string; name: string; src: string }[];
   setWallpaper: (id: string) => void;
@@ -269,6 +312,54 @@ function AppearanceSettings({
             </button>
           ))}
         </div>
+      </SettingRow>
+
+      <SettingRow label={t("settings.uiStyle")}>
+        <div className="flex gap-2">
+          {([
+            { value: "gradient" as const, labelKey: "settings.uiStyleGradient" },
+            { value: "minimal" as const, labelKey: "settings.uiStyleMinimal" },
+          ] as const).map(({ value, labelKey }) => (
+            <button
+              key={value}
+              onClick={() => setUiStyle(value)}
+              className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm border transition-colors"
+              style={{
+                borderColor:
+                  uiStyle === value ? "var(--border-strong)" : "var(--border-default)",
+                backgroundColor:
+                  uiStyle === value ? "var(--accent-muted)" : "transparent",
+                color: "var(--text-primary)",
+              }}
+            >
+              {t(labelKey)}
+            </button>
+          ))}
+        </div>
+      </SettingRow>
+
+      <SettingRow label={t("settings.globalOpacity")}>
+        <OpacitySlider value={globalOpacity} onChange={setGlobalOpacity} />
+      </SettingRow>
+
+      <SettingRow label={t("settings.sidebarOpacity")}>
+        <OpacityControl
+          value={sidebarOpacity ?? globalOpacity}
+          onChange={setSidebarOpacity}
+          inherited={sidebarOpacity === null}
+          inheritedLabel={t("settings.followGlobal")}
+          onReset={resetSidebarOpacity}
+        />
+      </SettingRow>
+
+      <SettingRow label={t("settings.dockOpacity")}>
+        <OpacityControl
+          value={dockOpacity ?? globalOpacity}
+          onChange={setDockOpacity}
+          inherited={dockOpacity === null}
+          inheritedLabel={t("settings.followGlobal")}
+          onReset={resetDockOpacity}
+        />
       </SettingRow>
 
       {/* Accent Color */}
@@ -1175,13 +1266,81 @@ function formatSize(gb: number): string {
   return `${gb.toFixed(1)} GB`;
 }
 
+function OpacitySlider({
+  value,
+  onChange,
+}: {
+  value: number;
+  onChange: (value: number) => void;
+}) {
+  return (
+    <div className="flex max-w-sm items-center gap-3">
+      <input
+        type="range"
+        min={35}
+        max={100}
+        step={1}
+        value={value}
+        onChange={(e) => onChange(Number.parseInt(e.target.value, 10))}
+        className="h-2 flex-1 cursor-pointer appearance-none rounded-full"
+        style={{
+          background: `linear-gradient(90deg, var(--accent) 0%, var(--accent) ${value}%, var(--bg-input) ${value}%, var(--bg-input) 100%)`,
+        }}
+      />
+      <span
+        className="min-w-[52px] text-right text-sm font-medium tabular-nums"
+        style={{ color: "var(--text-primary)" }}
+      >
+        {value}%
+      </span>
+    </div>
+  );
+}
+
+function OpacityControl({
+  value,
+  onChange,
+  inherited,
+  inheritedLabel,
+  onReset,
+}: {
+  value: number;
+  onChange: (value: number) => void;
+  inherited: boolean;
+  inheritedLabel: string;
+  onReset: () => void;
+}) {
+  return (
+    <div className="max-w-sm">
+      <OpacitySlider value={value} onChange={onChange} />
+      <div className="mt-2 flex items-center justify-between">
+        <span className="text-xs" style={{ color: "var(--text-tertiary)" }}>
+          {inherited ? inheritedLabel : `${value}%`}
+        </span>
+        <button
+          type="button"
+          onClick={onReset}
+          className="rounded-md border px-2.5 py-1 text-xs transition-colors"
+          style={{
+            color: "var(--text-secondary)",
+            borderColor: "var(--border-default)",
+            backgroundColor: inherited ? "var(--accent-muted)" : "transparent",
+          }}
+        >
+          {inherited ? inheritedLabel : `${inheritedLabel}`}
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function SectionTitle({ children }: { children: React.ReactNode }) {
   return (
     <h2
-      className="text-base font-semibold mb-5 pb-3"
+      className="mb-6 pb-3 text-base font-semibold"
       style={{
         color: "var(--text-primary)",
-        borderBottom: "1px solid var(--border-subtle)",
+        borderBottom: "1px solid var(--divider-strong)",
       }}
     >
       {children}
@@ -1198,11 +1357,11 @@ function SettingRow({
 }) {
   return (
     <div
-      className="flex items-start gap-6 mb-5"
+      className="mb-6 flex items-start gap-6"
       style={{ minHeight: 36 }}
     >
       <div
-        className="text-sm font-medium flex-shrink-0 pt-1.5"
+        className="flex-shrink-0 pt-1.5 text-sm font-medium"
         style={{ width: 140, color: "var(--text-secondary)" }}
       >
         {label}

@@ -10,7 +10,7 @@ interface SettingsProps {
   instance: AppInstance;
 }
 
-export function Settings({ instance: _instance }: SettingsProps) {
+export function Settings({}: SettingsProps) {
   const { t } = useTranslation();
   const { theme, setTheme } = useThemeStore();
   const { wallpaper, wallpapers, setWallpaper } = useDesktopStore();
@@ -18,10 +18,12 @@ export function Settings({ instance: _instance }: SettingsProps) {
 
   return (
     <div className="flex h-full">
-      {/* Settings nav */}
       <div
-        className="w-44 flex-shrink-0 border-r overflow-y-auto scrollbar-thin p-2"
-        style={{ borderColor: "var(--border-default)" }}
+        className="w-52 flex-shrink-0 overflow-y-auto scrollbar-thin p-3"
+        style={{
+          borderRight: "1px solid var(--divider-strong)",
+          backgroundColor: "var(--bg-soft)",
+        }}
       >
         {[
           { id: "appearance", label: t("settings.appearance"), icon: Palette },
@@ -30,7 +32,7 @@ export function Settings({ instance: _instance }: SettingsProps) {
         ].map(({ id, label, icon: Icon }) => (
           <button
             key={id}
-            className="flex items-center gap-2 w-full px-3 py-2 rounded-lg text-sm hover:bg-[var(--accent-muted)] transition-colors"
+            className="ui-control mb-1 flex h-11 w-full justify-start gap-2 rounded-[var(--radius-md)] px-3 text-sm"
             style={{ color: "var(--text-primary)" }}
           >
             <Icon size={16} />
@@ -39,17 +41,14 @@ export function Settings({ instance: _instance }: SettingsProps) {
         ))}
       </div>
 
-      {/* Settings content */}
-      <div className="flex-1 overflow-y-auto scrollbar-thin p-6">
-        {/* Appearance */}
+      <div className="flex-1 overflow-y-auto scrollbar-thin p-8">
         <section className="mb-8">
-          <h2 className="text-lg font-semibold mb-4" style={{ color: "var(--text-primary)" }}>
+          <h2 className="mb-5 text-lg font-semibold" style={{ color: "var(--text-primary)" }}>
             {t("settings.appearance")}
           </h2>
 
-          {/* Theme */}
           <div className="mb-6">
-            <p className="text-sm font-medium mb-2" style={{ color: "var(--text-secondary)" }}>
+            <p className="mb-2 text-sm font-medium" style={{ color: "var(--text-secondary)" }}>
               {t("settings.theme")}
             </p>
             <div className="flex gap-2">
@@ -60,11 +59,11 @@ export function Settings({ instance: _instance }: SettingsProps) {
               ].map(({ value, label, icon: Icon }) => (
                 <button
                   key={value}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg border text-sm transition-colors ${
-                    theme === value ? "border-[var(--accent)] bg-[var(--accent-muted)]" : ""
+                  className={`ui-control h-10 rounded-[var(--radius-md)] border px-4 text-sm ${
+                    theme === value ? "ui-control-active" : ""
                   }`}
                   style={{
-                    borderColor: theme === value ? "var(--accent)" : "var(--border-default)",
+                    borderColor: theme === value ? "var(--border-strong)" : "var(--border-default)",
                     color: "var(--text-primary)",
                   }}
                   onClick={() => setTheme(value)}
@@ -76,9 +75,8 @@ export function Settings({ instance: _instance }: SettingsProps) {
             </div>
           </div>
 
-          {/* Wallpaper */}
           <div className="mb-6">
-            <p className="text-sm font-medium mb-2" style={{ color: "var(--text-secondary)" }}>
+            <p className="mb-2 text-sm font-medium" style={{ color: "var(--text-secondary)" }}>
               {t("desktop.wallpaper")}
             </p>
             <div className="grid grid-cols-4 gap-3">
@@ -87,11 +85,14 @@ export function Settings({ instance: _instance }: SettingsProps) {
                 return (
                   <button
                     key={wp.id}
-                    className={`relative rounded-lg overflow-hidden aspect-video border-2 transition-all ${
+                    className={`relative aspect-video overflow-hidden rounded-[var(--radius-lg)] border transition-all ${
                       wallpaper === wp.id
-                        ? "border-[var(--accent)] ring-2 ring-[var(--accent)]"
+                        ? "border-[var(--border-strong)]"
                         : "border-transparent hover:border-[var(--border-default)]"
                     }`}
+                    style={{
+                      boxShadow: wallpaper === wp.id ? "0 0 0 3px var(--focus-ring)" : "none",
+                    }}
                     onClick={() => setWallpaper(wp.id)}
                   >
                     <div
@@ -102,11 +103,11 @@ export function Settings({ instance: _instance }: SettingsProps) {
                       }}
                     />
                     {wallpaper === wp.id && (
-                      <div className="absolute top-1 right-1 w-5 h-5 rounded-full bg-[var(--accent)] flex items-center justify-center">
+                      <div className="absolute top-2 right-2 flex h-5 w-5 items-center justify-center rounded-full bg-[var(--fill-solid)]">
                         <span className="text-white text-xs">✓</span>
                       </div>
                     )}
-                    <p className="absolute bottom-0 left-0 right-0 text-[10px] text-white bg-black/50 px-1 py-0.5 truncate text-center">
+                    <p className="absolute bottom-0 left-0 right-0 truncate px-2 py-1 text-[10px] text-white bg-black/45 text-center">
                       {wp.name}
                     </p>
                   </button>
@@ -116,18 +117,17 @@ export function Settings({ instance: _instance }: SettingsProps) {
           </div>
         </section>
 
-        {/* Language */}
         <section className="mb-8">
-          <h2 className="text-lg font-semibold mb-4" style={{ color: "var(--text-primary)" }}>
+          <h2 className="mb-5 text-lg font-semibold" style={{ color: "var(--text-primary)" }}>
             {t("settings.language")}
           </h2>
           <div className="flex gap-2">
             <button
-              className={`px-4 py-2 rounded-lg border text-sm transition-colors ${
-                locale === "en" ? "border-[var(--accent)] bg-[var(--accent-muted)]" : ""
+              className={`ui-control h-10 rounded-[var(--radius-md)] border px-4 text-sm ${
+                locale === "en" ? "ui-control-active" : ""
               }`}
               style={{
-                borderColor: locale === "en" ? "var(--accent)" : "var(--border-default)",
+                borderColor: locale === "en" ? "var(--border-strong)" : "var(--border-default)",
                 color: "var(--text-primary)",
               }}
               onClick={() => setLocale("en")}
@@ -135,11 +135,11 @@ export function Settings({ instance: _instance }: SettingsProps) {
               English
             </button>
             <button
-              className={`px-4 py-2 rounded-lg border text-sm transition-colors ${
-                locale === "zh" ? "border-[var(--accent)] bg-[var(--accent-muted)]" : ""
+              className={`ui-control h-10 rounded-[var(--radius-md)] border px-4 text-sm ${
+                locale === "zh" ? "ui-control-active" : ""
               }`}
               style={{
-                borderColor: locale === "zh" ? "var(--accent)" : "var(--border-default)",
+                borderColor: locale === "zh" ? "var(--border-strong)" : "var(--border-default)",
                 color: "var(--text-primary)",
               }}
               onClick={() => setLocale("zh")}
@@ -149,14 +149,13 @@ export function Settings({ instance: _instance }: SettingsProps) {
           </div>
         </section>
 
-        {/* About */}
         <section>
-          <h2 className="text-lg font-semibold mb-4" style={{ color: "var(--text-primary)" }}>
+          <h2 className="mb-5 text-lg font-semibold" style={{ color: "var(--text-primary)" }}>
             {t("settings.about")}
           </h2>
-          <div className="max-w-md rounded-lg border p-4" style={{ borderColor: "var(--border-default)", backgroundColor: "var(--bg-elevated)" }}>
-            <h3 className="text-lg font-bold mb-1" style={{ color: "var(--text-primary)" }}>EverOS</h3>
-            <p className="text-sm mb-2" style={{ color: "var(--text-tertiary)" }}>
+          <div className="ui-card max-w-md rounded-[var(--radius-xl)] p-5">
+            <h3 className="mb-1 text-lg font-bold" style={{ color: "var(--text-primary)" }}>EverOS</h3>
+            <p className="mb-2 text-sm" style={{ color: "var(--text-tertiary)" }}>
               {t("settings.description")}
             </p>
             <p className="text-xs" style={{ color: "var(--text-tertiary)" }}>

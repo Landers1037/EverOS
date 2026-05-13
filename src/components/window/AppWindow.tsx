@@ -57,7 +57,7 @@ export function AppWindow({ instance }: AppWindowProps) {
   return (
     <div
       className={cn(
-        "absolute rounded-lg overflow-hidden border",
+        "absolute overflow-hidden border",
         instance.state === "closing" && "animate-windowClose"
       )}
       style={{
@@ -66,32 +66,51 @@ export function AppWindow({ instance }: AppWindowProps) {
         width: isMobile ? "100%" : isMaximized ? "100%" : instance.size.width,
         height: isMobile ? "100%" : isMaximized ? "100%" : instance.size.height,
         zIndex: instance.zIndex,
+        borderRadius: isMobile || isMaximized ? 0 : "var(--radius-xl)",
         borderColor: "var(--border-default)",
         boxShadow: instance.isFocused
-          ? "0 8px 32px rgba(0,0,0,0.2)"
-          : "0 2px 8px rgba(0,0,0,0.1)",
-        animation: instance.state === "open" ? "windowOpen 0.15s ease-out" : undefined,
+          ? "var(--window-shadow-focused)"
+          : "var(--window-shadow)",
+        animation: instance.state === "open" ? "windowOpen 0.18s var(--easing-default)" : undefined,
         backgroundColor: "var(--bg-elevated)",
+        backdropFilter: "blur(var(--glass-blur))",
+        WebkitBackdropFilter: "blur(var(--glass-blur))",
       }}
       onMouseDown={() => focusApp(instance.id)}
     >
-      {/* Title Bar */}
       <div
-        className="flex items-center h-10 px-3 cursor-grab"
+        className="flex cursor-grab items-center gap-2 px-4"
         style={{
-          backgroundColor: "var(--bg-elevated)",
-          borderBottom: "1px solid var(--border-subtle)",
+          height: "var(--window-title-height)",
+          background: "var(--window-header-fill)",
+          borderBottom: "1px solid var(--divider-strong)",
         }}
         onMouseDown={handleMouseDown}
         onDoubleClick={handleTitleBarDoubleClick}
       >
-        <Icon size={14} />
-        <span
-          className="ml-2 text-sm font-medium flex-1 truncate"
-          style={{ color: "var(--text-primary)" }}
+        <div
+          className="flex h-8 w-8 items-center justify-center rounded-[var(--radius-md)]"
+          style={{
+            backgroundColor: "var(--bg-soft)",
+            border: "1px solid var(--line-soft)",
+          }}
         >
-          {appDef ? t(appDef.nameKey) : instance.title}
-        </span>
+          <Icon size={15} />
+        </div>
+        <div className="min-w-0 flex-1">
+          <div
+            className="text-[11px] uppercase tracking-[0.16em]"
+            style={{ color: "var(--text-tertiary)" }}
+          >
+            Application
+          </div>
+          <span
+            className="block truncate text-sm font-semibold"
+            style={{ color: "var(--text-primary)" }}
+          >
+            {appDef ? t(appDef.nameKey) : instance.title}
+          </span>
+        </div>
         <WindowControls
           onMinimize={() => minimizeApp(instance.id)}
           onMaximize={() =>
@@ -102,18 +121,16 @@ export function AppWindow({ instance }: AppWindowProps) {
         />
       </div>
 
-      {/* Content */}
       <div
         className="overflow-auto"
         style={{
-          height: "calc(100% - 40px)",
-          backgroundColor: "var(--bg-elevated)",
+          height: "calc(100% - var(--window-title-height))",
+          background: "var(--window-content-fill)",
         }}
       >
         <AppComponent instance={instance} />
       </div>
 
-      {/* Resize Handles */}
       {!isMaximized && !isMobile && (
         <div className="absolute inset-0 pointer-events-none">
           {(

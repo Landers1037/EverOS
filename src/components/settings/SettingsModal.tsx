@@ -85,8 +85,18 @@ export function SettingsModal() {
     clearTempFiles,
   } = useSettingsStore();
 
-  const { theme, setTheme } = useThemeStore();
-  const { wallpaper, wallpapers, setWallpaper } = useDesktopStore();
+  const { theme, resolved: resolvedTheme, setTheme } = useThemeStore();
+  const { 
+    wallpaper, 
+    wallpapers, 
+    setWallpaper,
+    customWallpaper,
+    setCustomWallpaper,
+    wallpaperMode,
+    setWallpaperMode,
+    wallpaperBlur,
+    setWallpaperBlur
+  } = useDesktopStore();
   const [showPassword, setShowPassword] = useState(false);
 
   if (!isOpen) return null;
@@ -197,6 +207,13 @@ export function SettingsModal() {
                 wallpaper={wallpaper}
                 wallpapers={wallpapers}
                 setWallpaper={setWallpaper}
+                customWallpaper={customWallpaper}
+                setCustomWallpaper={setCustomWallpaper}
+                wallpaperMode={wallpaperMode}
+                setWallpaperMode={setWallpaperMode}
+                wallpaperBlur={wallpaperBlur}
+                setWallpaperBlur={setWallpaperBlur}
+                resolvedTheme={resolvedTheme}
               />
             )}
             {activeCategory === "system" && (
@@ -259,6 +276,13 @@ function AppearanceSettings({
   wallpaper,
   wallpapers,
   setWallpaper,
+  customWallpaper,
+  setCustomWallpaper,
+  wallpaperMode,
+  setWallpaperMode,
+  wallpaperBlur,
+  setWallpaperBlur,
+  resolvedTheme,
 }: {
   t: (key: string) => string;
   theme: string;
@@ -280,9 +304,33 @@ function AppearanceSettings({
   setDockOpacity: (opacity: number) => void;
   resetDockOpacity: () => void;
   wallpaper: string;
-  wallpapers: { id: string; name: string; src: string }[];
+  wallpapers: { id: string; name: string; src: string; mode?: "dark" | "light" | "both" }[];
   setWallpaper: (id: string) => void;
+  customWallpaper: string | null;
+  setCustomWallpaper: (dataUrl: string | null) => void;
+  wallpaperMode: "cover" | "stretch" | "center";
+  setWallpaperMode: (mode: "cover" | "stretch" | "center") => void;
+  wallpaperBlur: number;
+  setWallpaperBlur: (blur: number) => void;
+  resolvedTheme: "light" | "dark";
 }) {
+  const currentWallpapers = wallpapers.filter(
+    (wp) => !wp.mode || wp.mode === resolvedTheme || wp.mode === "both"
+  );
+  
+  const handleUploadBackground = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        if (ev.target?.result) {
+          setCustomWallpaper(ev.target.result as string);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   return (
     <div>
       <SectionTitle>{t("settings.appearance")}</SectionTitle>
@@ -385,32 +433,129 @@ function AppearanceSettings({
 
       {/* Desktop Background */}
       <SettingRow label={t("settings.desktopBackground")}>
-        <div className="grid grid-cols-4 gap-2 w-full max-w-sm">
-          {wallpapers.slice(0, 8).map((wp) => {
-            const isGradient = wp.src.startsWith("linear");
-            return (
+        <div className="flex flex-col gap-4 w-full max-w-sm">
+          <div className="grid grid-cols-4 gap-2">
+            {/* Custom Uploaded Background */}
+            {customWallpaper && (
               <button
-                key={wp.id}
-                onClick={() => setWallpaper(wp.id)}
+                onClick={() => setCustomWallpaper(customWallpaper)}
                 className="relative rounded-lg overflow-hidden aspect-video border transition-all hover:opacity-90"
                 style={{
-                  borderColor:
-                    wallpaper === wp.id
-                      ? "var(--accent)"
-                      : "var(--border-subtle)",
-                  outline: wallpaper === wp.id ? "2px solid var(--accent)" : "none",
+                  borderColor: "var(--accent)",
+                  outline: "2px solid var(--accent)",
                 }}
               >
                 <div
                   className="w-full h-full"
                   style={{
-                    background: isGradient ? wp.src : "var(--bg-input)",
+                    backgroundImage: `url(${customWallpaper})`,
                     backgroundSize: "cover",
+                    backgroundPosition: "center",
                   }}
                 />
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setCustomWallpaper(null);
+                  }}
+                  className="absolute top-1 right-1 w-5 h-5 flex items-center justify-center rounded-full bg-black/50 text-white hover:bg-black/70 transition-colors"
+                >
+                  <X size={10} />
+                </button>
               </button>
-            );
-          })}
+            )}
+
+            {currentWallpapers.slice(0, customWallpaper ? 7 : 8).map((wp) => {
+              const isGradient = wp.src.startsWith("linear");
+              const isSelected = !customWallpaper && wallpaper === wp.id;
+              return (
+                <button
+                  key={wp.id}
+                  onClick={() => {
+                    setCustomWallpaper(null);
+                    setWallpaper(wp.id);
+                  }}
+                  className="relative rounded-lg overflow-hidden aspect-video border transition-all hover:opacity-90"
+                  style={{
+                    borderColor: isSelected ? "var(--accent)" : "var(--border-subtle)",
+                    outline: isSelected ? "2px solid var(--accent)" : "none",
+                  }}
+                >
+                  <div
+                    className="w-full h-full"
+                    style={{
+                      background: isGradient ? wp.src : "var(--bg-input)",
+                      backgroundSize: "cover",
+                    }}
+                  />
+                </button>
+              );
+            })}
+            
+            <label
+              className="flex flex-col items-center justify-center rounded-lg aspect-video border border-dashed transition-all hover:opacity-90 cursor-pointer"
+              style={{
+                borderColor: "var(--border-default)",
+                backgroundColor: "var(--bg-panel)",
+              }}
+            >
+              <Plus size={16} style={{ color: "var(--text-secondary)" }} />
+              <input 
+                type="file" 
+                accept="image/*" 
+                className="hidden" 
+                onChange={handleUploadBackground} 
+              />
+            </label>
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <span className="text-xs font-medium" style={{ color: "var(--text-tertiary)" }}>
+              {t("settings.wallpaperMode") || "展示模式"}
+            </span>
+            <div className="flex gap-2">
+              {([
+                { value: "cover" as const, label: t("settings.modeCover") || "覆盖" },
+                { value: "stretch" as const, label: t("settings.modeStretch") || "拉伸" },
+                { value: "center" as const, label: t("settings.modeCenter") || "居中" },
+              ]).map(({ value, label }) => (
+                <button
+                  key={value}
+                  onClick={() => setWallpaperMode(value)}
+                  className="px-3 py-1.5 rounded-lg text-sm border transition-colors flex-1"
+                  style={{
+                    borderColor:
+                      wallpaperMode === value ? "var(--border-strong)" : "var(--border-default)",
+                    backgroundColor:
+                      wallpaperMode === value ? "var(--accent-muted)" : "transparent",
+                    color: "var(--text-primary)",
+                  }}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <div className="flex justify-between">
+              <span className="text-xs font-medium" style={{ color: "var(--text-tertiary)" }}>
+                {t("settings.wallpaperBlur") || "背景模糊"}
+              </span>
+              <span className="text-xs" style={{ color: "var(--text-secondary)" }}>
+                {wallpaperBlur}px
+              </span>
+            </div>
+            <input
+              type="range"
+              min="0"
+              max="50"
+              value={wallpaperBlur}
+              onChange={(e) => setWallpaperBlur(Number(e.target.value))}
+              className="w-full"
+              style={{ accentColor: "var(--accent)" }}
+            />
+          </div>
         </div>
       </SettingRow>
 

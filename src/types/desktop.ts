@@ -9,6 +9,7 @@ export interface Wallpaper {
   src: string;
   thumbnail: string;
   category: "solid" | "gradient" | "image" | "live";
+  mode?: "dark" | "light" | "both";
 }
 
 export interface SystemStatus {
